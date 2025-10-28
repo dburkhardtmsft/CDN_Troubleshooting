@@ -4,6 +4,5 @@ These are local CDN Troubleshooting PowerShell Scripts, and here is the backgrou
  
 **CDN_PerfDiag_v1025** = Troubleshooting latency or reliability issues, Cache Hit Issues, DNS Info, Reports slowest Azure Red Code Tested
  
-**Prerequisites & Setup**
-Install PowerShell 7+:
+**Prerequisites & Setup** = Install PowerShell 7+:
 
