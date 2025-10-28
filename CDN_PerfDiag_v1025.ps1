@@ -368,17 +368,29 @@ for ($i = 1; $i -le $Iterations; $i++) {
         $sslLatencies += $sslLatency
     }
 
-    # Measure total latency (GET request with minimal response)
+    # Measure pure HTTP response time (using established connection)
+    Start-Sleep -Milliseconds 200  # Ensure previous connection is fully established
+    
+    # First make a warmup request to ensure connection is ready
+    try {
+        $warmupReq = [System.Net.WebRequest]::Create($Url)
+        $warmupReq.Method = "HEAD"
+        $warmupReq.GetResponse().Close()
+    } catch { }
+    
+    # Now measure the actual HTTP request/response cycle
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     $resp = $null
     try {
-        # Create a custom WebRequest to minimize data transfer
+        # Create a custom WebRequest for just HTTP layer timing
         $req = [System.Net.WebRequest]::Create($Url)
         $req.Method = "GET"
         $req.AllowAutoRedirect = $false
-        # Add common headers to make the request more realistic
+        $req.KeepAlive = $true
         $req.Headers.Add("Accept-Encoding", "gzip, deflate")
         $req.Headers.Add("Accept", "text/html")
+        $req.ServicePoint.ConnectionLimit = 1
+        $req.ServicePoint.UseNagleAlgorithm = $false
         $resp = $req.GetResponse()
         # Track successful response code
         $code = [int]$resp.StatusCode
@@ -417,14 +429,23 @@ for ($i = 1; $i -le $Iterations; $i++) {
         }
     } finally {
         if ($resp) {
-            $resp.Close()
+            try {
+                # Get response body to ensure complete response
+                $stream = $resp.GetResponseStream()
+                if ($stream) {
+                    $buffer = New-Object byte[] 8192
+                    while ($stream.Read($buffer, 0, $buffer.Length) -gt 0) { }
+                }
+            }
+            finally {
+                $resp.Close()
+            }
         }
     }
+    
     $sw.Stop()
     $latency = [Math]::Round($sw.Elapsed.TotalMilliseconds, 2)
     $latencies += $latency
-
-        # Headers are now processed in the GET request block above
 
     # Measure TTFB
     try {
@@ -478,6 +499,20 @@ $stats = @{
     TTFB = Get-Statistics -values ($ttfbs | Where-Object { $_ -ne $null })
 }
 
+# Calculate complete test time (equivalent to Catchpoint's Test Time)
+$testTimes = @()
+for ($i = 0; $i -lt $dnsTimings.Count; $i++) {
+    if ($sslLatencies[$i] -and $serverTimings[$i] -and $downloadTimings[$i]) {
+        $totalTime = $dnsTimings[$i] +  # DNS Lookup
+                     $sslLatencies[$i].TcpConnectionTime +  # TCP Connection
+                     $sslLatencies[$i].SslHandshakeTime +  # SSL Handshake
+                     $serverTimings[$i] +  # Server Processing
+                     $downloadTimings[$i]  # Content Download
+        $testTimes += $totalTime
+    }
+}
+$stats["TestTime"] = Get-Statistics -values $testTimes
+
 # Display Results
 $color = if ($CdnType -eq "CloudFront") { "Green" } else { "Cyan" }
 Write-Host "`nDetailed Analysis for $CdnType" -ForegroundColor $color
@@ -511,7 +546,7 @@ Format-TimingStats $stats.DNS "DNS Resolution"
 Format-TimingStats $stats.Server "Server Processing"
 Format-TimingStats $stats.Download "Content Download"
 Format-TimingStats $stats.TTFB "Time to First Byte"
-Format-TimingStats $stats.Total "Total Response Time"
+Format-TimingStats $stats.Total "Total HTTP Response Time"
 
 # Show file size and compression details
 $sizeInfo = Get-TrueCompressedSize -Url $Url -Encoding 'gzip'
@@ -641,7 +676,8 @@ foreach ($metric in @(
     @{Name="Server Processing"; Data=$stats.Server},
     @{Name="Content Download"; Data=$stats.Download},
     @{Name="Time to First Byte"; Data=$stats.TTFB},
-    @{Name="Total Response"; Data=$stats.Total}
+    @{Name="Total HTTP Response"; Data=$stats.Total},
+    @{Name="Complete Test Time"; Data=$stats.TestTime}  # Equivalent to Catchpoint's Test Time
 )) {
     $perfTable += [PSCustomObject]@{
         'Metric' = $metric.Name
