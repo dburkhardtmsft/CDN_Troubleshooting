@@ -1,8 +1,20 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$Url,
-    [switch]$SkipGeo
+    [switch]$SkipGeo,
+    [string]$SubscriptionKey
 )
+
+# Prompt for subscription key if not provided
+if (-not $SubscriptionKey) {
+    $needsKey = Read-Host "Does this URL require an API subscription key? (y/n)"
+    if ($needsKey -eq 'y' -or $needsKey -eq 'Y') {
+        $SubscriptionKey = Read-Host "Enter the ocp-apim-subscription-key value"
+    }
+}
+
+# Store subscription key at script level for use in functions
+$script:SubscriptionKey = $SubscriptionKey
 
 # Global cache for geo lookups to avoid duplicate API calls
 $script:GeoCache = @{}
@@ -60,28 +72,41 @@ $script:AfdPopMap = @{
     'AKL'='Auckland'; 'AMS'='Amsterdam'; 'ATH'='Athens'; 'ATL'='Atlanta'; 'BCN'='Barcelona'
     'BER'='Berlin'; 'BJS'='Beijing'; 'BKK'='Bangkok'; 'BL'='Blue Ridge'; 'BN'='Brisbane'
     'BNA'='Nashville'; 'BNE'='Brisbane'; 'BOG'='Bogotá'; 'BOM'='Mumbai'; 'BOS'='Boston'
-    'BRU'='Brussels'; 'BUD'='Budapest'; 'BUE'='Buenos Aires'; 'BUH'='Bucharest'; 'CAI'='Cairo'
-    'CBR'='Canberra'; 'CHI'='Chicago'; 'CLT'='Charlotte'; 'MWH'='Moses Lake'; 'CPH'='Copenhagen'
-    'CPQ'='Campinas'; 'CO'='Quincy, WA'; 'CPT'='Cape Town'; 'CVG'='Cincinnati'; 'CWL'='Cardiff'
-    'CYS'='Cheyenne'; 'DAL'='Dallas'; 'DUB'='Dublin'; 'DEL'='Delhi'; 'DFW'='Dallas/Fort Worth'
-    'DSM'='Des Moines'; 'DEN'='Denver'; 'DOH'='Doha'; 'DTT'='Detroit'; 'DUS'='Düsseldorf'
-    'DXB'='Dubai'; 'EWR'='Newark'; 'FOR'='Fortaleza'; 'FRA'='Frankfurt'; 'SAO'='São Paulo'
-    'GVA'='Geneva'; 'GVX'='Gävle'; 'HEL'='Helsinki'; 'HKG'='Hong Kong'; 'HNL'='Honolulu'
-    'HOU'='Houston'; 'HYD'='Hyderabad'; 'IST'='Istanbul'; 'JAX'='Jacksonville'; 'JGA'='Jamnagar'
+    'BRU'='Brussels'; 'BUD'='Budapest'; 'BUE'='Buenos Aires'; 'BUH'='Bucharest'; 'BY'='Boydton, Virginia'
+    'CAI'='Cairo'; 'CBR'='Canberra'; 'CH'='Chicago'; 'CHI'='Chicago'; 'CLT'='Charlotte'
+    'MWH'='Moses Lake'; 'CPH'='Copenhagen'; 'CPQ'='Campinas'; 'CO'='Quincy, WA'; 'CPT'='Cape Town'
+    'CVG'='Cincinnati'; 'CWL'='Cardiff'; 'CYS'='Cheyenne'; 'DAL'='Dallas'; 'DUB'='Dublin'
+    'DEL'='Delhi'; 'DFW'='Dallas/Fort Worth'; 'DM'='Des Moines'; 'DSM'='Des Moines'; 'DEN'='Denver'
+    'DOH'='Doha'; 'DTT'='Detroit'; 'DUS'='Düsseldorf'; 'DXB'='Dubai'; 'EWR'='Newark'
+    'FOR'='Fortaleza'; 'FRA'='Frankfurt'; 'SAO'='São Paulo'; 'GVA'='Geneva'; 'GVX'='Gävle'
+    'HEL'='Helsinki'; 'HKG'='Hong Kong'; 'HNL'='Honolulu'; 'HOU'='Houston'; 'HYD'='Hyderabad'
+    'IAD'='Ashburn, Virginia'; 'IST'='Istanbul'; 'JAX'='Jacksonville'; 'JGA'='Jamnagar'
     'JHB'='Johor Bahru'; 'JKT'='Jakarta'; 'JNB'='Johannesburg'; 'KUL'='Kuala Lumpur'; 'LAD'='Luanda'
     'LAS'='Las Vegas'; 'LAX'='Los Angeles'; 'LIS'='Lisbon'; 'LON'='London'; 'LOS'='Lagos'
     'MMA'='Malmo'; 'MAD'='Madrid'; 'MAN'='Manchester'; 'MEL'='Melbourne'; 'MEX'='Mexico City'
     'MIA'='Miami'; 'MIL'='Milan'; 'MNL'='Manila'; 'MRS'='Marseille'; 'MSP'='Minneapolis–Saint Paul'
-    'MUC'='Munich'; 'NAG'='Nagpur'; 'NBO'='Nairobi'; 'NYC'='New York City'; 'OSA'='Osaka'
-    'OSL'='Oslo'; 'PAO'='Palo Alto'; 'PAR'='Paris'; 'PDX'='Portland, Oregon'; 'PER'='Perth'
-    'PHL'='Philadelphia'; 'PHX'='Phoenix'; 'PNQ'='Pune'; 'PRG'='Prague'; 'PUS'='Busan'
-    'QRO'='Querétaro City'; 'RBA'='Rabat'; 'RIO'='Rio de Janeiro'; 'ROM'='Rome'; 'SCL'='Santiago de Chile'
-    'SEL'='Seoul'; 'SG'='Singapore'; 'SGN'='Ho Chi Minh City'; 'SJC'='San Jose, California'; 'SLA'='Seoul'
-    'SLC'='Salt Lake City'; 'SN'='San Antonio'; 'SOF'='Sofia'; 'SEA'='Seattle'; 'STO'='Stockholm'
-    'SVG'='Stavanger'; 'SYD'='Sydney'; 'TEB'='Teterboro'; 'TLV'='Tel Aviv'; 'TPE'='Taipei'
-    'TYO'='Tokyo'; 'VIE'='Vienna'; 'WAW'='Warsaw'; 'YMQ'='Montreal'; 'YQB'='Quebec City'
-    'WST'='Seattle';'YTO'='Toronto'; 'YVR'='Vancouver'; 'ZAG'='Zagreb'; 'ZRH'='Zurich'
+    'MUC'='Munich'; 'NAG'='Nagpur'; 'NBO'='Nairobi'; 'NYC'='New York City'; 'ORD'='Chicago'
+    'OSA'='Osaka'; 'OSL'='Oslo'; 'PAO'='Palo Alto'; 'PAR'='Paris'; 'PDX'='Portland, Oregon'
+    'PER'='Perth'; 'PHL'='Philadelphia'; 'PHX'='Phoenix'; 'PNQ'='Pune'; 'PRG'='Prague'
+    'PUS'='Busan'; 'QRO'='Querétaro City'; 'RBA'='Rabat'; 'RIO'='Rio de Janeiro'; 'ROM'='Rome'
+    'SCL'='Santiago de Chile'; 'SEL'='Seoul'; 'SG'='Singapore'; 'SGN'='Ho Chi Minh City'
+    'SJC'='San Jose, California'; 'SLA'='Seoul'; 'SLC'='Salt Lake City'; 'SN'='San Antonio'
+    'SOF'='Sofia'; 'SEA'='Seattle'; 'STO'='Stockholm'; 'SVG'='Stavanger'; 'SYD'='Sydney'
+    'TEB'='Teterboro'; 'TLV'='Tel Aviv'; 'TPE'='Taipei'; 'TYO'='Tokyo'; 'VA'='Ashburn, Virginia'
+    'VIE'='Vienna'; 'WAW'='Warsaw'; 'YMQ'='Montreal'; 'YQB'='Quebec City'; 'WST'='Seattle'
+    'YTO'='Toronto'; 'YVR'='Vancouver'; 'ZAG'='Zagreb'; 'ZRH'='Zurich'
 }
+
+# Recommended Security Headers
+$script:RecommendedSecurityHeaders = @(
+    @{ Name = 'Strict-Transport-Security'; Description = 'HSTS - Forces HTTPS connections'; Severity = 'High' },
+    @{ Name = 'Content-Security-Policy'; Description = 'CSP - Prevents XSS and injection attacks'; Severity = 'High' },
+    @{ Name = 'X-Content-Type-Options'; Description = 'Prevents MIME type sniffing'; Severity = 'Medium' },
+    @{ Name = 'X-Frame-Options'; Description = 'Prevents clickjacking attacks'; Severity = 'Medium' },
+    @{ Name = 'X-XSS-Protection'; Description = 'Legacy XSS protection (deprecated but still useful)'; Severity = 'Low' },
+    @{ Name = 'Referrer-Policy'; Description = 'Controls referrer information sent'; Severity = 'Low' },
+    @{ Name = 'Permissions-Policy'; Description = 'Controls browser feature permissions'; Severity = 'Low' }
+)
 
 # Origin Type Detection Patterns
 $script:OriginPatterns = @{
@@ -230,7 +255,8 @@ function Get-SafeWebRequest {
     param(
         [string]$Uri,
         [string]$Method = 'GET',
-        [int]$TimeoutSec = 15
+        [int]$TimeoutSec = 15,
+        [string]$ApiSubscriptionKey
     )
     
     $headers = @{
@@ -239,6 +265,12 @@ function Get-SafeWebRequest {
         'Accept-Language' = 'en-US,en;q=0.5'
         'Accept-Encoding' = 'gzip, deflate, br'
         'Upgrade-Insecure-Requests' = '1'
+    }
+    
+    # Add subscription key header if provided
+    if ($ApiSubscriptionKey) {
+        $headers['ocp-apim-subscription-key'] = $ApiSubscriptionKey
+        Write-Host "[INFO] Using API subscription key for request" -ForegroundColor Cyan
     }
     
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -289,6 +321,52 @@ function Get-SafeWebRequest {
             }
         } else {
             Write-Warning "Failed $Method request to $Uri`: $($_.Exception.Message)"
+            # Try to extract response from failed request if available (4xx/5xx responses)
+            if ($_.Exception.Response) {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+                Write-Host "[DEBUG] Response status: $statusCode" -ForegroundColor Yellow
+                
+                # For 4xx/5xx responses, try to make a second request that captures the response
+                try {
+                    # Use .NET HttpClient to get the full response including headers for error responses
+                    $httpClient = [System.Net.Http.HttpClient]::new()
+                    $httpClient.Timeout = [TimeSpan]::FromSeconds(10)
+                    
+                    # Add headers
+                    $httpClient.DefaultRequestHeaders.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                    if ($ApiSubscriptionKey) {
+                        $httpClient.DefaultRequestHeaders.Add('ocp-apim-subscription-key', $ApiSubscriptionKey)
+                    }
+                    
+                    $stopwatch.Restart()
+                    $httpResponse = $httpClient.GetAsync($Uri).Result
+                    $stopwatch.Stop()
+                    
+                    # Create a compatible response object
+                    $responseHeaders = @{}
+                    foreach ($header in $httpResponse.Headers) {
+                        $responseHeaders[$header.Key] = $header.Value -join ', '
+                    }
+                    foreach ($header in $httpResponse.Content.Headers) {
+                        $responseHeaders[$header.Key] = $header.Value -join ', '
+                    }
+                    
+                    $result = [PSCustomObject]@{
+                        StatusCode = [int]$httpResponse.StatusCode
+                        Headers = $responseHeaders
+                        ElapsedMilliseconds = $stopwatch.ElapsedMilliseconds
+                        IsErrorResponse = $true
+                    }
+                    
+                    $httpClient.Dispose()
+                    
+                    Write-Host "[INFO] Captured $($responseHeaders.Count) headers from error response" -ForegroundColor Cyan
+                    return $result
+                }
+                catch {
+                    Write-Warning "Could not extract error response headers: $($_.Exception.Message)"
+                }
+            }
             return $null
         }
     }
@@ -823,7 +901,7 @@ function Get-CDNEdgeLocation {
 }
 
 function Get-CompressionInfo {
-    param([Microsoft.PowerShell.Commands.WebResponseObject]$Response)
+    param($Response)  # Accept any response type (WebResponseObject or custom PSObject)
     
     $result = [PSCustomObject]@{
         ContentEncoding = 'None'
@@ -1436,7 +1514,7 @@ function Analyze-SingleUrl {
     
     # Get web response
     Write-Verbose "Making web request"
-    $response = Get-SafeWebRequest -Uri $Url -Method $(if ($IsMainUrl) {'GET'} else {'HEAD'})
+    $response = Get-SafeWebRequest -Uri $Url -Method $(if ($IsMainUrl) {'GET'} else {'HEAD'}) -ApiSubscriptionKey $script:SubscriptionKey
     Write-Verbose "Web request completed"
     
     # Get TLS info for HTTPS URLs
@@ -1669,13 +1747,24 @@ function Show-UrlAnalysis {
         
         # Headers
         Write-Info "`n--- HTTP Headers ---" -Color Cyan
-        if ($Analysis.Response.Headers.Count -gt 0) {
+        if ($Analysis.Response.Headers -and $Analysis.Response.Headers.Count -gt 0) {
             # Display headers in table format
             $headerTable = @()
-            $Analysis.Response.Headers.GetEnumerator() | ForEach-Object {
-                $headerTable += [PSCustomObject]@{
-                    Key = $_.Key
-                    Value = $_.Value
+            try {
+                $Analysis.Response.Headers.GetEnumerator() | ForEach-Object {
+                    $headerTable += [PSCustomObject]@{
+                        Key = $_.Key
+                        Value = $_.Value
+                    }
+                }
+            }
+            catch {
+                # Fallback for different header formats
+                $Analysis.Response.Headers.Keys | ForEach-Object {
+                    $headerTable += [PSCustomObject]@{
+                        Key = $_
+                        Value = $Analysis.Response.Headers[$_]
+                    }
                 }
             }
             $headerTable | Format-Table -AutoSize | Out-String | Write-Host
@@ -1700,7 +1789,199 @@ function Show-UrlAnalysis {
             Write-Info "`n--- Azure Front Door Information ---" -Color Cyan
             Write-Info "Azure Front Door POP: $($Analysis.Response.Headers['x-azure-ref'])"
             Write-Info "Decoded AFD POP Location: $($Analysis.AzureFrontDoorPOP)" -Color Green
+            
+            # Additional Azure headers
+            if ($Analysis.Response.Headers['X-Azure-FDID']) {
+                Write-Info "Front Door Profile ID: $($Analysis.Response.Headers['X-Azure-FDID'])"
+            }
+            if ($Analysis.Response.Headers['X-MS-Request-ID']) {
+                Write-Info "Request ID: $($Analysis.Response.Headers['X-MS-Request-ID'])"
+            }
+            if ($Analysis.Response.Headers['X-Azure-RequestChain']) {
+                Write-Info "Request Chain: $($Analysis.Response.Headers['X-Azure-RequestChain'])"
+            }
         }
+        
+        # Azure API Management Detection
+        if ($script:SubscriptionKey -or $Analysis.Response.Headers['ocp-apim-trace-location'] -or 
+            $Analysis.Response.Headers['Ocp-Apim-Trace-Location'] -or
+            ($Analysis.Response.StatusCode -eq 401 -and $Analysis.Response.Headers['WWW-Authenticate'] -match 'subscription')) {
+            Write-Info "`n--- Azure API Management (APIM) ---" -Color Cyan
+            Write-Info "APIM Detected: Yes" -Color Green
+            Write-Info "Authentication: Subscription Key (ocp-apim-subscription-key)" -Color Gray
+            if ($Analysis.Response.Headers['ocp-apim-trace-location']) {
+                Write-Info "Trace Location: $($Analysis.Response.Headers['ocp-apim-trace-location'])"
+            }
+        }
+        
+        # 403 Forbidden Diagnosis
+        if ($Analysis.Response.StatusCode -eq 403) {
+            Write-Info "`n--- 403 Forbidden Diagnosis ---" -Color Yellow
+            $possibleCauses = @()
+            
+            # Check for WAF block indicators
+            if ($Analysis.Response.Headers['X-Azure-Ref'] -or $Analysis.Response.Headers['x-azure-ref']) {
+                $possibleCauses += "Azure Front Door WAF policy block"
+            }
+            if ($Analysis.Response.Headers['X-Ms-Forbidden-Reason']) {
+                $possibleCauses += "Reason: $($Analysis.Response.Headers['X-Ms-Forbidden-Reason'])"
+            }
+            
+            # Check for APIM auth failure
+            if ($script:SubscriptionKey) {
+                $possibleCauses += "APIM subscription key may be invalid or expired"
+                $possibleCauses += "APIM subscription may not have access to this API"
+            } else {
+                $possibleCauses += "Missing API subscription key (ocp-apim-subscription-key)"
+            }
+            
+            # Check for IP restriction
+            $possibleCauses += "IP address restriction or geo-blocking"
+            $possibleCauses += "Origin server access control"
+            
+            # Check for rate limiting
+            if ($Analysis.Response.Headers['Retry-After']) {
+                $possibleCauses += "Rate limiting - Retry after: $($Analysis.Response.Headers['Retry-After']) seconds"
+            }
+            if ($Analysis.Response.Headers['X-RateLimit-Remaining']) {
+                $possibleCauses += "Rate limit remaining: $($Analysis.Response.Headers['X-RateLimit-Remaining'])"
+            }
+            
+            Write-Info "Possible causes:" -Color Yellow
+            foreach ($cause in $possibleCauses) {
+                Write-Info "  • $cause"
+            }
+        }
+        
+        # WAF Challenge Detection
+        $wafChallengeDetected = $false
+        $wafProvider = ""
+        $wafIndicators = @()
+        
+        # AWS WAF Challenge
+        if ($Analysis.Response.Headers['x-amzn-waf-action'] -match 'challenge|captcha|block') {
+            $wafChallengeDetected = $true
+            $wafProvider = "AWS WAF"
+            $wafIndicators += "x-amzn-waf-action: $($Analysis.Response.Headers['x-amzn-waf-action'])"
+        }
+        
+        # Cloudflare Challenge
+        if ($Analysis.Response.Headers['cf-mitigated'] -or 
+            $Analysis.Response.Headers['cf-chl-bypass'] -or
+            ($Analysis.Response.StatusCode -eq 403 -and $Analysis.Response.Headers['cf-ray'])) {
+            $wafChallengeDetected = $true
+            $wafProvider = "Cloudflare"
+            if ($Analysis.Response.Headers['cf-mitigated']) {
+                $wafIndicators += "cf-mitigated: $($Analysis.Response.Headers['cf-mitigated'])"
+            }
+        }
+        
+        # Azure WAF / Front Door Challenge
+        if (($Analysis.Response.StatusCode -in @(403, 429)) -and $Analysis.Response.Headers['x-azure-ref']) {
+            $wafChallengeDetected = $true
+            $wafProvider = "Azure Front Door WAF"
+            $wafIndicators += "Blocked request with x-azure-ref present"
+        }
+        
+        # Akamai Bot Manager
+        if ($Analysis.Response.Headers['x-akamai-session-info'] -match 'bot' -or
+            $Analysis.Response.Headers['akamai-grn']) {
+            $wafChallengeDetected = $true
+            $wafProvider = "Akamai Bot Manager"
+        }
+        
+        # Incapsula/Imperva
+        if ($Analysis.Response.Headers['x-iinfo'] -or 
+            ($Analysis.Response.StatusCode -eq 403 -and $Analysis.Response.Headers['x-cdn'] -match 'incapsula|imperva')) {
+            $wafChallengeDetected = $true
+            $wafProvider = "Imperva/Incapsula"
+        }
+        
+        # Generic indicators
+        if ($Analysis.Response.Headers['X-Cache'] -match 'Error' -and $Analysis.Response.StatusCode -eq 202) {
+            if (-not $wafChallengeDetected) {
+                $wafChallengeDetected = $true
+                $wafProvider = "Unknown WAF"
+                $wafIndicators += "202 status with cache error (typical challenge pattern)"
+            }
+        }
+        
+        # Small response body with non-200 status often indicates challenge page
+        $contentLength = 0
+        if ($Analysis.Response.Headers['Content-Length']) {
+            try { $contentLength = [int]$Analysis.Response.Headers['Content-Length'] } catch {}
+        }
+        if ($contentLength -gt 0 -and $contentLength -lt 5000 -and $Analysis.Response.StatusCode -in @(200, 202, 403, 429)) {
+            if ($wafChallengeDetected) {
+                $wafIndicators += "Small response body ($contentLength bytes) - likely challenge/interstitial page"
+            }
+        }
+        
+        if ($wafChallengeDetected) {
+            Write-Info "`n--- WAF Challenge Detected ---" -Color Yellow
+            Write-Info "⚠ WARNING: This response appears to be a WAF challenge page, not the actual site content" -Color Yellow
+            Write-Info "WAF Provider: $wafProvider" -Color Yellow
+            if ($wafIndicators.Count -gt 0) {
+                Write-Info "Indicators:" -Color Gray
+                foreach ($indicator in $wafIndicators) {
+                    Write-Info "  • $indicator" -Color Gray
+                }
+            }
+            Write-Info "`nNote: Security headers and content analysis below may be incomplete." -Color Yellow
+            Write-Info "The actual site likely has additional security headers after passing the challenge." -Color Gray
+            Write-Info "To see real headers, use a browser with DevTools (F12 → Network tab)." -Color Gray
+        }
+        
+        # Security Headers Audit
+        Write-Info "`n--- Security Headers Audit ---" -Color Cyan
+        
+        if ($wafChallengeDetected) {
+            Write-Info "[!] Results may be incomplete due to WAF challenge response" -Color Yellow
+        }
+        
+        $missingHeaders = @()
+        $presentHeaders = @()
+        
+        foreach ($secHeader in $script:RecommendedSecurityHeaders) {
+            $headerPresent = $false
+            foreach ($key in $Analysis.Response.Headers.Keys) {
+                if ($key -ieq $secHeader.Name) {
+                    $headerPresent = $true
+                    break
+                }
+            }
+            
+            if ($headerPresent) {
+                $presentHeaders += $secHeader
+            } else {
+                $missingHeaders += $secHeader
+            }
+        }
+        
+        if ($presentHeaders.Count -gt 0) {
+            Write-Info "Present Security Headers:" -Color Green
+            foreach ($h in $presentHeaders) {
+                Write-Info "  ✓ $($h.Name)" -Color Green
+            }
+        }
+        
+        if ($missingHeaders.Count -gt 0) {
+            Write-Info "Missing Security Headers:" -Color Yellow
+            foreach ($h in $missingHeaders) {
+                $color = switch ($h.Severity) {
+                    'High' { 'Red' }
+                    'Medium' { 'Yellow' }
+                    default { 'Gray' }
+                }
+                Write-Info "  ✗ $($h.Name) [$($h.Severity)] - $($h.Description)" -Color $color
+            }
+        } else {
+            Write-Info "All recommended security headers are present!" -Color Green
+        }
+    } else {
+        Write-Info "`n--- HTTP Response Information ---" -Color Cyan
+        Write-Info "[ERROR] No HTTP response received. The request may have failed or timed out." -Color Red
+        Write-Info "Check if the URL requires authentication or a subscription key." -Color Yellow
     }
     
     # Redirect Chain
