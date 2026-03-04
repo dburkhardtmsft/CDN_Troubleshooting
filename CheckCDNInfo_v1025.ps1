@@ -174,6 +174,7 @@ $script:SASEDnsPatterns = @(
     @{ Name = 'iboss';                  Patterns = @('iboss.com', 'ibosscloud.com', 'ibossconnect.com') }
     @{ Name = 'Menlo Security';         Patterns = @('menlosecurity.com', 'safebrowsing.menlosecurity.com') }
     @{ Name = 'Cloudflare Gateway';     Patterns = @('cloudflare-gateway.com', 'cf-gateway.com') }
+    @{ Name = 'Microsoft Global Secure Access'; Patterns = @('globalsecureaccess.microsoft.com', 'edgegateway.globalsecureaccess.microsoft.com') }
 )
 
 # Known SASE/SSE IP Org/ASN Patterns (for whois-based detection)
@@ -1729,8 +1730,30 @@ function Test-DnsSteering {
         }
         # else: both empty (both NXDOMAIN) => no divergence
         if ($diverged) {
-            $result.DivergenceDetected = $true
-            $result.Notes += "System resolver returned [$($sysSet -join ', ')], public resolver returned [$($pubSet -join ', ')]"
+            # Before flagging, check if both IP sets belong to the same ASN.
+            # CDNs (Akamai, Cloudflare, etc.) use GeoDNS to return different PoP IPs
+            # depending on which resolver asks. This is normal behaviour and NOT hijacking.
+            # Only flag as true steering if the IPs come from different organisations.
+            $sysAsn = $null
+            $pubAsn = $null
+            try {
+                $sysGeo = Invoke-RestMethod -Uri "https://ipinfo.io/$($sysSet[0])/json" -TimeoutSec 5 -ErrorAction Stop
+                if ($sysGeo.org) { $sysAsn = ($sysGeo.org -split ' ')[0] }   # e.g. "AS20940"
+            } catch {}
+            try {
+                $pubGeo = Invoke-RestMethod -Uri "https://ipinfo.io/$($pubSet[0])/json" -TimeoutSec 5 -ErrorAction Stop
+                if ($pubGeo.org) { $pubAsn = ($pubGeo.org -split ' ')[0] }
+            } catch {}
+
+            if ($sysAsn -and $pubAsn -and $sysAsn -eq $pubAsn) {
+                # Same ASN on both sides -- this is CDN GeoDNS, not DNS steering
+                $result.Notes += "DNS answers differ but both resolve to the same ASN ($sysAsn / $($sysGeo.org)). This is normal CDN GeoDNS behaviour (different PoPs returned per resolver location), NOT DNS hijacking."
+            } else {
+                $result.DivergenceDetected = $true
+                $sysOrgLabel = if ($sysGeo.org) { " [$($sysGeo.org)]" } else { '' }
+                $pubOrgLabel = if ($pubGeo.org) { " [$($pubGeo.org)]" } else { '' }
+                $result.Notes += "System resolver returned [$($sysSet -join ', ')]$sysOrgLabel, public resolver returned [$($pubSet -join ', ')]$pubOrgLabel"
+            }
         }
     }
 
@@ -1773,7 +1796,9 @@ function Test-TLSInterception {
             throw "TLS connect to $($uri.Host) timed out after 5 seconds"
         }
 
-        $policyErrorsRef = [ref][System.Security.Authentication.SslPolicyErrors]::None
+        # Use integer 0 (= SslPolicyErrors.None) to avoid a type-load failure in PS 5.1
+        # when System.Net.Security hasn't been explicitly loaded yet.
+        $policyErrorsRef = [ref]([int]0)
         $validationCallback = [Net.Security.RemoteCertificateValidationCallback]{
             param($sender, $certificate, $chain, $sslPolicyErrors)
             $policyErrorsRef.Value = $sslPolicyErrors
@@ -1875,7 +1900,7 @@ function Test-TLSInterception {
             }
         }
 
-        if ($policyErrors -ne [System.Security.Authentication.SslPolicyErrors]::None) {
+        if ([int]$policyErrors -ne 0) {
             $result.WeakMatches += "SSL Policy Errors: $policyErrors"
             $result.Notes += "SSL policy errors reported: $policyErrors"
         }
@@ -2241,7 +2266,8 @@ function Get-TracerouteAnalysis {
         # Detect VPN interfaces -- these are on-path middlemen by definition
         $vpnPatterns = @('VPN', 'Tunnel', 'TAP-', 'TUN', 'WireGuard', 'AzVPN', 'Cisco AnyConnect',
                          'GlobalProtect', 'Fortinet', 'OpenVPN', 'ZeroTier', 'Tailscale', 'PANGP',
-                         'Juniper', 'Pulse Secure', 'F5 Access', 'SonicWall', 'Zscaler')
+                         'Juniper', 'Pulse Secure', 'F5 Access', 'SonicWall', 'Zscaler',
+                         'Global Secure Access', 'GlobalSecureAccess', 'Microsoft Tunnel')
         foreach ($vpnPattern in $vpnPatterns) {
             if ($ifAlias -match [regex]::Escape($vpnPattern)) {
                 $result.TCPTest.IsVPN = $true
@@ -2526,6 +2552,14 @@ function Test-SecurityAgentPresence {
             RegistryPaths   = @('HKLM:\SOFTWARE\Menlo Security')
             ServicePatterns = @('MenloSecurity')
             AdapterPatterns = @()
+        },
+        @{
+            Name            = 'Microsoft Global Secure Access'
+            Processes       = @('GlobalSecureAccess','GlobalSecureAccessTunnel','msgsaclient')
+            CertPatterns    = @('Microsoft Global Secure Access','GlobalSecureAccess')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Microsoft\Global Secure Access','HKCU:\SOFTWARE\Microsoft\Global Secure Access')
+            ServicePatterns = @('GlobalSecureAccessTunnel','GlobalSecureAccess','msgsa')
+            AdapterPatterns = @('Global Secure Access','GlobalSecureAccess','Microsoft Tunnel')
         }
     )
 
