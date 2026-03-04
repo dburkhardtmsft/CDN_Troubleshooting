@@ -71,24 +71,24 @@ $script:DDoSPatterns = @{
 $script:AfdPopMap = @{
     'AKL'='Auckland'; 'AMS'='Amsterdam'; 'ATH'='Athens'; 'ATL'='Atlanta'; 'BCN'='Barcelona'
     'BER'='Berlin'; 'BJS'='Beijing'; 'BKK'='Bangkok'; 'BL'='Blue Ridge'; 'BN'='Brisbane'
-    'BNA'='Nashville'; 'BNE'='Brisbane'; 'BOG'='Bogotá'; 'BOM'='Mumbai'; 'BOS'='Boston'
+    'BNA'='Nashville'; 'BNE'='Brisbane'; 'BOG'='Bogota'; 'BOM'='Mumbai'; 'BOS'='Boston'
     'BRU'='Brussels'; 'BUD'='Budapest'; 'BUE'='Buenos Aires'; 'BUH'='Bucharest'; 'BY'='Boydton, Virginia'
     'CAI'='Cairo'; 'CBR'='Canberra'; 'CH'='Chicago'; 'CHI'='Chicago'; 'CLT'='Charlotte'
     'MWH'='Moses Lake'; 'CPH'='Copenhagen'; 'CPQ'='Campinas'; 'CO'='Quincy, WA'; 'CPT'='Cape Town'
     'CVG'='Cincinnati'; 'CWL'='Cardiff'; 'CYS'='Cheyenne'; 'DAL'='Dallas'; 'DUB'='Dublin'
     'DEL'='Delhi'; 'DFW'='Dallas/Fort Worth'; 'DM'='Des Moines'; 'DSM'='Des Moines'; 'DEN'='Denver'
-    'DOH'='Doha'; 'DTT'='Detroit'; 'DUS'='Düsseldorf'; 'DXB'='Dubai'; 'EWR'='Newark'
-    'FOR'='Fortaleza'; 'FRA'='Frankfurt'; 'SAO'='São Paulo'; 'GVA'='Geneva'; 'GVX'='Gävle'
+    'DOH'='Doha'; 'DTT'='Detroit'; 'DUS'='Dusseldorf'; 'DXB'='Dubai'; 'EWR'='Newark'
+    'FOR'='Fortaleza'; 'FRA'='Frankfurt'; 'SAO'='Sao Paulo'; 'GVA'='Geneva'; 'GVX'='Gavle'
     'HEL'='Helsinki'; 'HKG'='Hong Kong'; 'HNL'='Honolulu'; 'HOU'='Houston'; 'HYD'='Hyderabad'
     'IAD'='Ashburn, Virginia'; 'IST'='Istanbul'; 'JAX'='Jacksonville'; 'JGA'='Jamnagar'
     'JHB'='Johor Bahru'; 'JKT'='Jakarta'; 'JNB'='Johannesburg'; 'KUL'='Kuala Lumpur'; 'LAD'='Luanda'
     'LAS'='Las Vegas'; 'LAX'='Los Angeles'; 'LIS'='Lisbon'; 'LON'='London'; 'LOS'='Lagos'
     'MMA'='Malmo'; 'MAD'='Madrid'; 'MAN'='Manchester'; 'MEL'='Melbourne'; 'MEX'='Mexico City'
-    'MIA'='Miami'; 'MIL'='Milan'; 'MNL'='Manila'; 'MRS'='Marseille'; 'MSP'='Minneapolis–Saint Paul'
+    'MIA'='Miami'; 'MIL'='Milan'; 'MNL'='Manila'; 'MRS'='Marseille'; 'MSP'='Minneapolis--Saint Paul'
     'MUC'='Munich'; 'NAG'='Nagpur'; 'NBO'='Nairobi'; 'NYC'='New York City'; 'ORD'='Chicago'
     'OSA'='Osaka'; 'OSL'='Oslo'; 'PAO'='Palo Alto'; 'PAR'='Paris'; 'PDX'='Portland, Oregon'
     'PER'='Perth'; 'PHL'='Philadelphia'; 'PHX'='Phoenix'; 'PNQ'='Pune'; 'PRG'='Prague'
-    'PUS'='Busan'; 'QRO'='Querétaro City'; 'RBA'='Rabat'; 'RIO'='Rio de Janeiro'; 'ROM'='Rome'
+    'PUS'='Busan'; 'QRO'='Queretaro City'; 'RBA'='Rabat'; 'RIO'='Rio de Janeiro'; 'ROM'='Rome'
     'SCL'='Santiago de Chile'; 'SEL'='Seoul'; 'SG'='Singapore'; 'SGN'='Ho Chi Minh City'
     'SJC'='San Jose, California'; 'SLA'='Seoul'; 'SLC'='Salt Lake City'; 'SN'='San Antonio'
     'SOF'='Sofia'; 'SEA'='Seattle'; 'STO'='Stockholm'; 'SVG'='Stavanger'; 'SYD'='Sydney'
@@ -96,6 +96,96 @@ $script:AfdPopMap = @{
     'VIE'='Vienna'; 'WAW'='Warsaw'; 'YMQ'='Montreal'; 'YQB'='Quebec City'; 'WST'='Seattle'
     'YTO'='Toronto'; 'YVR'='Vancouver'; 'ZAG'='Zagreb'; 'ZRH'='Zurich'
 }
+
+# Known TLS Interception / MITM Certificate Issuers
+$script:HighConfidenceMITMIssuers = @(
+    'Palo Alto', 'PAN-', 'Fortinet', 'FortiGate', 'Fortigate',
+    'Check Point', 'Checkpoint', 'SonicWall', 'Sonic Wall',
+    'Sophos', 'Barracuda', 'WatchGuard', 'Juniper', 'Cisco Umbrella',
+    'Cisco IronPort', 'Meraki', 'Zscaler', 'zscaler', 'ZS-',
+    'Netskope', 'Symantec', 'BlueCoat', 'Blue Coat', 'ProxySG', 'Broadcom',
+    'McAfee Web Gateway', 'Skyhigh', 'iboss', 'Menlo Security',
+    'Websense', 'Forcepoint', 'Squid', 'SSL Inspection', 'DPI-SSL',
+    'Deep Packet Inspection', 'Transparent Proxy'
+)
+
+$script:WeakMITMIssuers = @(
+    'Corporate Root', 'Enterprise Root', 'Company Root',
+    'Internal CA', 'Proxy CA', 'Inspection CA',
+    'DO_NOT_TRUST', 'FiddlerRoot', 'mitmproxy', 'Charles Proxy',
+    'BurpSuite', 'ESET SSL Filter', 'MITM'
+)
+
+# Known Middlebox / NVA Hostname Patterns (for traceroute hop analysis)
+$script:MiddleboxHopPatterns = @(
+    # Firewall vendors
+    'paloalto', 'pan-', 'fortinet', 'fortigate', 'checkpoint', 'sonicwall',
+    'sophos', 'barracuda', 'watchguard', 'juniper-fw', 'cisco-fw', 'meraki',
+    # NVA / proxy patterns
+    'nva', 'firewall', 'fw-', '-fw-', '-fw\.', 'proxy', 'squid',
+    'waf-', '-waf-', 'inspection', 'filter', 'guard',
+    # SD-WAN patterns
+    'sdwan', 'sd-wan', 'viptela', 'velocloud', 'silverpeak', 'citrix-sd',
+    # Cloud security gateways
+    'zscaler', 'zs-', 'netskope', 'iboss', 'menlo', 'bluecoat',
+    # VPN patterns
+    'vpn-', '-vpn-', 'tunnel', 'ipsec', 'sslvpn',
+    # WAN optimizer
+    'riverbed', 'steelhead', 'wan-opt', 'wanopt'
+)
+
+# Proxy-Indicating Response Headers
+$script:ProxyIndicatorHeaders = @(
+    'Via',
+    'X-Forwarded-For',
+    'X-Forwarded-Host',
+    'X-Forwarded-Proto',
+    'X-Forwarded-Server',
+    'Forwarded',
+    'X-BlueCoat-Via',
+    'X-Zscaler-TransactionID',
+    'X-Zscaler-Via',
+    'X-Zscaler',
+    'X-Squid-Error',
+    'X-Cache-Lookup',
+    'X-Proxy-ID',
+    'X-Proxy-Cache',
+    'Proxy-Connection',
+    'Proxy-Agent',
+    'X-Authenticated-User',
+    'X-UIDH',
+    'X-MSISDN',
+    'X-ISA-ID',
+    'ISA-Server',
+    'X-Forwarded-By',
+    'X-imforwards',
+    'X-Forwarded-Port'
+)
+
+# Known SASE/SSE DNS Patterns (CNAMEs or hostnames that indicate a security service in the path)
+$script:SASEDnsPatterns = @(
+    @{ Name = 'Netskope';               Patterns = @('goskope.com', 'netskope.com', 'npa.goskope.com') }
+    @{ Name = 'Zscaler';                Patterns = @('zscaler.net', 'zscalertwo.net', 'zscalerthree.net', 'zscloud.net', 'zpa.zscaler.com') }
+    @{ Name = 'Palo Alto Prisma';       Patterns = @('gpcloudservice.com', 'prismaaccess.com', 'paloaltonetworks.com') }
+    @{ Name = 'Cisco Umbrella';         Patterns = @('sig.umbrella.com', 'swg.umbrella.com', 'opendns.com') }
+    @{ Name = 'Forcepoint';             Patterns = @('forcepoint.net', 'mailcontrol.com') }
+    @{ Name = 'Symantec/Broadcom WSS';  Patterns = @('messagelabs.com', 'symantec.com', 'threatpulse.com') }
+    @{ Name = 'McAfee/Skyhigh';         Patterns = @('mvision.mcafee.com', 'saasprotection.com', 'skyhighsecurity.com', 'mcafee.net') }
+    @{ Name = 'iboss';                  Patterns = @('iboss.com', 'ibosscloud.com', 'ibossconnect.com') }
+    @{ Name = 'Menlo Security';         Patterns = @('menlosecurity.com', 'safebrowsing.menlosecurity.com') }
+    @{ Name = 'Cloudflare Gateway';     Patterns = @('cloudflare-gateway.com', 'cf-gateway.com') }
+)
+
+# Known SASE/SSE IP Org/ASN Patterns (for whois-based detection)
+$script:SASEIPOrgPatterns = @(
+    @{ Name = 'Netskope';               Patterns = @('Netskope', 'NETSKOPE') }
+    @{ Name = 'Zscaler';                Patterns = @('Zscaler', 'ZSCALER') }
+    @{ Name = 'Palo Alto Prisma';       Patterns = @('Palo Alto Networks', 'PANW') }
+    @{ Name = 'Cisco Umbrella';         Patterns = @('OpenDNS', 'Cisco Umbrella', 'OPENDNS') }
+    @{ Name = 'Forcepoint';             Patterns = @('Forcepoint') }
+    @{ Name = 'iboss';                  Patterns = @('iboss', 'IBOSS') }
+    @{ Name = 'Menlo Security';         Patterns = @('Menlo Security') }
+)
 
 # Recommended Security Headers
 $script:RecommendedSecurityHeaders = @(
@@ -200,10 +290,32 @@ function Write-Info {
     Write-Host $Message -ForegroundColor $Color
 }
 
-function Write-Error {
+function Write-Err {
     param([string]$Message, [string]$ErrorDetail = '')
     $fullMessage = if ($ErrorDetail) { "$Message - $ErrorDetail" } else { $Message }
     Write-Host "[ERROR] $fullMessage" -ForegroundColor Red
+}
+
+$script:SupportsLegacyParsing = $PSVersionTable.PSVersion.Major -lt 6
+
+function Invoke-WebRequestCompat {
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]$Parameters
+    )
+
+    $invokeParams = @{}
+    foreach ($key in $Parameters.Keys) {
+        $invokeParams[$key] = $Parameters[$key]
+    }
+
+    if ($script:SupportsLegacyParsing) {
+        $invokeParams['UseBasicParsing'] = $true
+    } elseif ($invokeParams.ContainsKey('UseBasicParsing')) {
+        $invokeParams.Remove('UseBasicParsing')
+    }
+
+    return Invoke-WebRequest @invokeParams
 }
 
 function Get-SafeGeoInfo {
@@ -225,7 +337,7 @@ function Get-SafeGeoInfo {
         Start-Sleep -Milliseconds $DelayMs
         
         $geoUrl = "https://ipinfo.io/$IP/json"
-        $geoData = Invoke-RestMethod -Uri $geoUrl -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+        $geoData = Invoke-RestMethod -Uri $geoUrl -TimeoutSec 10 -ErrorAction Stop
         
         # Cache the result
         $script:GeoCache[$IP] = $geoData
@@ -274,8 +386,16 @@ function Get-SafeWebRequest {
     }
     
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $baseParams = @{
+        Uri = $Uri
+        Headers = $headers
+        Method = $Method
+        TimeoutSec = $TimeoutSec
+        ErrorAction = 'Stop'
+    }
+
     try {
-        $response = Invoke-WebRequest -Uri $Uri -UseBasicParsing -Headers $headers -Method $Method -TimeoutSec $TimeoutSec -ErrorAction Stop
+        $response = Invoke-WebRequestCompat -Parameters $baseParams
         $stopwatch.Stop()
         
         # Add custom properties for performance metrics
@@ -295,7 +415,10 @@ function Get-SafeWebRequest {
             try {
                 Write-Warning "HEAD request failed for $Uri (Status: $statusCode), trying GET request"
                 $stopwatch.Restart()
-                $response = Invoke-WebRequest -Uri $Uri -UseBasicParsing -Headers $headers -Method 'GET' -TimeoutSec 5 -ErrorAction Stop
+                $retryParams = $baseParams.Clone()
+                $retryParams['Method'] = 'GET'
+                $retryParams['TimeoutSec'] = 5
+                $response = Invoke-WebRequestCompat -Parameters $retryParams
                 $stopwatch.Stop()
                 $response | Add-Member -NotePropertyName 'ElapsedMilliseconds' -NotePropertyValue $stopwatch.ElapsedMilliseconds
                 return $response
@@ -310,7 +433,9 @@ function Get-SafeWebRequest {
         elseif ($Method -eq 'HEAD' -and $TimeoutSec -gt 5) {
             try {
                 $stopwatch.Restart()
-                $response = Invoke-WebRequest -Uri $Uri -UseBasicParsing -Headers $headers -Method $Method -TimeoutSec 5 -ErrorAction Stop
+                $shortParams = $baseParams.Clone()
+                $shortParams['TimeoutSec'] = 5
+                $response = Invoke-WebRequestCompat -Parameters $shortParams
                 $stopwatch.Stop()
                 $response | Add-Member -NotePropertyName 'ElapsedMilliseconds' -NotePropertyValue $stopwatch.ElapsedMilliseconds
                 return $response
@@ -330,35 +455,38 @@ function Get-SafeWebRequest {
                 try {
                     # Use .NET HttpClient to get the full response including headers for error responses
                     $httpClient = [System.Net.Http.HttpClient]::new()
-                    $httpClient.Timeout = [TimeSpan]::FromSeconds(10)
+                    try {
+                        $httpClient.Timeout = [TimeSpan]::FromSeconds(10)
                     
-                    # Add headers
-                    $httpClient.DefaultRequestHeaders.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-                    if ($ApiSubscriptionKey) {
-                        $httpClient.DefaultRequestHeaders.Add('ocp-apim-subscription-key', $ApiSubscriptionKey)
+                        # Add headers
+                        $httpClient.DefaultRequestHeaders.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                        if ($ApiSubscriptionKey) {
+                            $httpClient.DefaultRequestHeaders.Add('ocp-apim-subscription-key', $ApiSubscriptionKey)
+                        }
+                    
+                        $stopwatch.Restart()
+                        $httpResponse = $httpClient.GetAsync($Uri).Result
+                        $stopwatch.Stop()
+                    
+                        # Create a compatible response object
+                        $responseHeaders = @{}
+                        foreach ($header in $httpResponse.Headers) {
+                            $responseHeaders[$header.Key] = $header.Value -join ', '
+                        }
+                        foreach ($header in $httpResponse.Content.Headers) {
+                            $responseHeaders[$header.Key] = $header.Value -join ', '
+                        }
+                    
+                        $result = [PSCustomObject]@{
+                            StatusCode = [int]$httpResponse.StatusCode
+                            Headers = $responseHeaders
+                            ElapsedMilliseconds = $stopwatch.ElapsedMilliseconds
+                            IsErrorResponse = $true
+                        }
                     }
-                    
-                    $stopwatch.Restart()
-                    $httpResponse = $httpClient.GetAsync($Uri).Result
-                    $stopwatch.Stop()
-                    
-                    # Create a compatible response object
-                    $responseHeaders = @{}
-                    foreach ($header in $httpResponse.Headers) {
-                        $responseHeaders[$header.Key] = $header.Value -join ', '
+                    finally {
+                        if ($httpClient) { $httpClient.Dispose() }
                     }
-                    foreach ($header in $httpResponse.Content.Headers) {
-                        $responseHeaders[$header.Key] = $header.Value -join ', '
-                    }
-                    
-                    $result = [PSCustomObject]@{
-                        StatusCode = [int]$httpResponse.StatusCode
-                        Headers = $responseHeaders
-                        ElapsedMilliseconds = $stopwatch.ElapsedMilliseconds
-                        IsErrorResponse = $true
-                    }
-                    
-                    $httpClient.Dispose()
                     
                     Write-Host "[INFO] Captured $($responseHeaders.Count) headers from error response" -ForegroundColor Cyan
                     return $result
@@ -822,7 +950,7 @@ function Get-DomainInfo {
     if ($result.IP) {
         try {
             $whoisUrl = "https://rdap.arin.net/registry/ip/$($result.IP)"
-            $whoisData = Invoke-RestMethod -Uri $whoisUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+            $whoisData = Invoke-RestMethod -Uri $whoisUrl -TimeoutSec 5 -ErrorAction Stop
             
             if ($whoisData.fullName) {
                 $result.IPOwner = $whoisData.fullName
@@ -973,7 +1101,11 @@ function Get-RedirectChain {
     
     for ($i = 0; $i -lt $maxRedirects; $i++) {
         try {
-            $response = Invoke-WebRequest -Uri $currentUrl -UseBasicParsing -MaximumRedirection 0 -ErrorAction SilentlyContinue
+            $response = Invoke-WebRequestCompat -Parameters @{
+                Uri = $currentUrl
+                MaximumRedirection = 0
+                ErrorAction = 'SilentlyContinue'
+            }
             $chain += [PSCustomObject]@{
                 StatusCode = $response.StatusCode
                 Url = $currentUrl
@@ -1398,33 +1530,39 @@ function Get-TLSCertificateInfo {
         return $null
     }
     
+    $tcpClient = $null
+    $sslStream = $null
     try {
         $uri = [Uri]$Url
-        $tcpClient = New-Object Net.Sockets.TcpClient($uri.Host, 443)
-        
-        try {
-            $sslStream = New-Object Net.Security.SslStream($tcpClient.GetStream(), $false, {$true})
-            $sslStream.AuthenticateAsClient($uri.Host)
-            
-            $cert = $sslStream.RemoteCertificate
-            $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $cert
-            
-            $daysLeft = ($cert2.NotAfter - (Get-Date)).Days
-            
-            return [PSCustomObject]@{
-                Issuer = $cert2.Issuer
-                Subject = $cert2.Subject
-                NotAfter = $cert2.NotAfter
-                DaysLeft = $daysLeft
-            }
+        $tcpClient = [System.Net.Sockets.TcpClient]::new()
+        $connectTask = $tcpClient.ConnectAsync($uri.Host, 443)
+        if (-not $connectTask.Wait(5000)) {
+            throw "TLS connect to $($uri.Host) timed out after 5 seconds"
         }
-        finally {
-            if ($tcpClient) { $tcpClient.Close() }
+
+        $sslStream = New-Object Net.Security.SslStream($tcpClient.GetStream(), $false, {$true})
+        $sslStream.ReadTimeout = 5000
+        $sslStream.AuthenticateAsClient($uri.Host)
+        
+        $cert = $sslStream.RemoteCertificate
+        $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $cert
+        
+        $daysLeft = ($cert2.NotAfter - (Get-Date)).Days
+        
+        return [PSCustomObject]@{
+            Issuer = $cert2.Issuer
+            Subject = $cert2.Subject
+            NotAfter = $cert2.NotAfter
+            DaysLeft = $daysLeft
         }
     }
     catch {
         Write-Warning "Failed to get TLS info for $Url`: $($_.Exception.Message)"
         return $null
+    }
+    finally {
+        if ($sslStream) { $sslStream.Dispose() }
+        if ($tcpClient) { $tcpClient.Close(); $tcpClient.Dispose() }
     }
 }
 
@@ -1487,6 +1625,1709 @@ function Get-ResourceUrls {
     }
     
     return $urls | Select-Object -Unique
+}
+
+# ============================================================
+# MIDDLEMAN / MIDDLEBOX DETECTION FUNCTIONS
+# ============================================================
+
+function Test-DnsSteering {
+    param(
+        [string]$Hostname,
+        [string]$PublicResolver = '1.1.1.1'
+    )
+
+    $result = [PSCustomObject]@{
+        SystemResolver         = $null
+        PublicResolver         = $PublicResolver
+        SystemAddresses        = @()
+        PublicAddresses        = @()
+        SystemQuerySucceeded   = $false
+        PublicQuerySucceeded   = $false
+        DivergenceDetected     = $false
+        Notes                  = @()
+    }
+
+    try {
+        $dnsServers = Get-DnsClientServerAddress -AddressFamily IPv4 -ErrorAction Stop | Where-Object { $_.ServerAddresses.Count -gt 0 }
+        if ($dnsServers) {
+            $result.SystemResolver = $dnsServers[0].ServerAddresses[0]
+        }
+    }
+    catch {
+        $result.Notes += "Could not determine system DNS resolver: $($_.Exception.Message)"
+    }
+
+    $resolveRecords = {
+        param($server)
+        $addresses = New-Object System.Collections.Generic.List[string]
+        $success = $false
+        # Only query A records (IPv4) for the divergence comparison.
+        # Including AAAA causes false positives because many corporate DNS resolvers
+        # return additional IPv6 addresses that public resolvers like 1.1.1.1 do not,
+        # making every enterprise network appear to have DNS steering even when clean.
+        foreach ($recordType in @('A')) {
+            $params = @{ Name = $Hostname; Type = $recordType; ErrorAction = 'Stop' }
+            if ($server) { $params['Server'] = $server }
+            try {
+                $records = Resolve-DnsName @params
+                foreach ($rec in $records) {
+                    if ($rec.IPAddress) { [void]$addresses.Add($rec.IPAddress) }
+                }
+                $success = $true
+            }
+            catch {
+                $msg = $_.Exception.Message
+                $dnsNotFound = $msg -match 'DNS name does not exist' -or $msg -match 'Name does not exist' -or $msg -match 'NXDOMAIN'
+                if ($dnsNotFound) {
+                    $success = $true
+                } else {
+                    throw
+                }
+            }
+        }
+        $sorted = $addresses.ToArray()
+        if ($sorted.Count -gt 0) {
+            $sorted = $sorted | Sort-Object -Unique
+        } else {
+            $sorted = @()
+        }
+        return @{ Success = $success; Addresses = $sorted }
+    }
+
+    try {
+        $sysResult = & $resolveRecords $null
+        if ($sysResult.Success) {
+            $result.SystemQuerySucceeded = $true
+            $result.SystemAddresses = $sysResult.Addresses
+        }
+    }
+    catch {
+        $result.Notes += "System resolver query failed: $($_.Exception.Message)"
+    }
+
+    try {
+        $publicResult = & $resolveRecords $PublicResolver
+        if ($publicResult.Success) {
+            $result.PublicQuerySucceeded = $true
+            $result.PublicAddresses = $publicResult.Addresses
+        }
+    }
+    catch {
+        $result.Notes += "Public resolver $PublicResolver query failed: $($_.Exception.Message)"
+    }
+
+    if ($result.SystemQuerySucceeded -and $result.PublicQuerySucceeded) {
+        $sysSet = @($result.SystemAddresses) | Sort-Object -Unique
+        $pubSet = @($result.PublicAddresses) | Sort-Object -Unique
+        $diverged = $false
+        if ($sysSet.Count -ne $pubSet.Count) {
+            $diverged = $true
+        } elseif ($sysSet.Count -gt 0) {
+            # Compare-Object requires non-empty collections in PS 5.1
+            $diverged = (@(Compare-Object -ReferenceObject $sysSet -DifferenceObject $pubSet)).Count -gt 0
+        }
+        # else: both empty (both NXDOMAIN) => no divergence
+        if ($diverged) {
+            $result.DivergenceDetected = $true
+            $result.Notes += "System resolver returned [$($sysSet -join ', ')], public resolver returned [$($pubSet -join ', ')]"
+        }
+    }
+
+    return $result
+}
+
+function Test-TLSInterception {
+    <#
+    .SYNOPSIS
+        Checks the TLS certificate chain for signs of MITM / TLS inspection.
+        A corporate proxy or NVA doing TLS inspection will re-sign traffic
+        with its own CA, which differs from the legitimate issuer.
+    #>
+    param([string]$Url)
+
+    $result = [PSCustomObject]@{
+        Intercepted            = $false
+        Issuer                 = $null
+        Subject                = $null
+        MatchedPattern         = $null
+        CertificateChain       = @()
+        Notes                  = @()
+        LeafThumbprint         = $null
+        HostnameMatches        = $null
+        SslPolicyErrors        = 'None'
+        HighConfidenceMatches  = @()
+        WeakMatches            = @()
+        SubjectAlternativeNames = @()
+    }
+
+    if ($Url -notmatch '^https://') { return $result }
+
+    $tcpClient = $null
+    $sslStream = $null
+    try {
+        $uri = [Uri]$Url
+        $tcpClient = [System.Net.Sockets.TcpClient]::new()
+        $connectTask = $tcpClient.ConnectAsync($uri.Host, 443)
+        if (-not $connectTask.Wait(5000)) {
+            throw "TLS connect to $($uri.Host) timed out after 5 seconds"
+        }
+
+        $policyErrorsRef = [ref][System.Security.Authentication.SslPolicyErrors]::None
+        $validationCallback = [Net.Security.RemoteCertificateValidationCallback]{
+            param($sender, $certificate, $chain, $sslPolicyErrors)
+            $policyErrorsRef.Value = $sslPolicyErrors
+            return $true
+        }
+
+        $sslStream = New-Object Net.Security.SslStream($tcpClient.GetStream(), $false, $validationCallback)
+        $sslStream.AuthenticateAsClient($uri.Host)
+
+        $policyErrors = $policyErrorsRef.Value
+        $cert2 = New-Object Security.Cryptography.X509Certificates.X509Certificate2 $sslStream.RemoteCertificate
+        $result.Issuer  = $cert2.Issuer
+        $result.Subject = $cert2.Subject
+        $result.LeafThumbprint = $cert2.Thumbprint
+        $result.SslPolicyErrors = $policyErrors.ToString()
+
+        # Extract SAN entries for hostname comparison
+        $sanList = @()
+        $sanExtension = $cert2.Extensions | Where-Object { $_.Oid.FriendlyName -eq 'Subject Alternative Name' }
+        if ($sanExtension) {
+            $formattedSan = $sanExtension.Format($false)
+            if ($formattedSan) {
+                $sanList = ($formattedSan -split ',\s*') | ForEach-Object { $_ -replace '^DNS Name=','' } | Where-Object { $_ }
+            }
+        }
+        $result.SubjectAlternativeNames = $sanList
+
+        $hostnameMatches = $false
+        foreach ($san in $sanList) {
+            $pattern = '^' + ([regex]::Escape($san).Replace('\*', '.*')) + '$'
+            if ($uri.Host -match $pattern) { $hostnameMatches = $true; break }
+        }
+        if (-not $hostnameMatches) {
+            $cn = $cert2.GetNameInfo([System.Security.Cryptography.X509Certificates.X509NameType]::SimpleName,$false)
+            if ($cn) {
+                $pattern = '^' + ([regex]::Escape($cn).Replace('\*', '.*')) + '$'
+                if ($uri.Host -match $pattern) { $hostnameMatches = $true }
+            }
+        }
+        $result.HostnameMatches = $hostnameMatches
+        if (-not $hostnameMatches) {
+            $result.WeakMatches += 'Hostname mismatch'
+            $result.Notes += "Certificate SAN/CN does not match $($uri.Host)"
+        }
+
+        # Walk the chain
+        $chain = New-Object Security.Cryptography.X509Certificates.X509Chain
+        $chain.ChainPolicy.RevocationMode = [Security.Cryptography.X509Certificates.X509RevocationMode]::NoCheck
+        [void]$chain.Build($cert2)
+        foreach ($element in $chain.ChainElements) {
+            $result.CertificateChain += [PSCustomObject]@{
+                Subject    = $element.Certificate.Subject
+                Issuer     = $element.Certificate.Issuer
+                Thumbprint = $element.Certificate.Thumbprint
+            }
+        }
+
+        $issuerText = "$($cert2.Issuer) $($cert2.GetNameInfo('SimpleName',$true))"
+        foreach ($pattern in $script:HighConfidenceMITMIssuers) {
+            if ($issuerText -match [regex]::Escape($pattern)) {
+                $result.HighConfidenceMatches += $pattern
+                $result.Intercepted = $true
+                if (-not $result.MatchedPattern) { $result.MatchedPattern = $pattern }
+            }
+        }
+        foreach ($pattern in $script:WeakMITMIssuers) {
+            if ($issuerText -match [regex]::Escape($pattern)) {
+                $result.WeakMatches += $pattern
+                if (-not $result.MatchedPattern) { $result.MatchedPattern = $pattern }
+            }
+        }
+        if ($result.HighConfidenceMatches.Count -gt 0) {
+            $result.Notes += "Certificate issuer matches known TLS inspection pattern(s): $($result.HighConfidenceMatches -join ', ')"
+        } elseif ($result.WeakMatches.Count -gt 0) {
+            $result.Notes += "Certificate issuer contains weak MITM indicators: $($result.WeakMatches -join ', ')"
+        }
+
+        $wellKnownRoots = @(
+            'DigiCert', "Let's Encrypt", 'ISRG', 'Sectigo', 'Comodo',
+            'GlobalSign', 'Entrust', 'Baltimore', 'Microsoft', 'Amazon',
+            'Google Trust', 'GeoTrust', 'Thawte', 'VeriSign', 'RapidSSL',
+            'GoDaddy', 'Starfield', 'USERTrust', 'QuoVadis', 'SwissSign',
+            'Buypass', 'Actalis', 'Certum', 'T-TeleSec', 'D-TRUST',
+            'IdenTrust', 'SSL.com', 'Trustwave'
+        )
+        $rootElement = $chain.ChainElements | Select-Object -Last 1
+        if ($rootElement) {
+            $rootIssuer = $rootElement.Certificate.Issuer
+            $isWellKnown = $false
+            foreach ($known in $wellKnownRoots) {
+                if ($rootIssuer -match [regex]::Escape($known)) {
+                    $isWellKnown = $true
+                    break
+                }
+            }
+            if (-not $isWellKnown) {
+                $result.WeakMatches += "Unknown Root: $rootIssuer"
+                $result.Notes += "Root CA '$rootIssuer' is not a well-known public CA"
+            }
+        }
+
+        if ($policyErrors -ne [System.Security.Authentication.SslPolicyErrors]::None) {
+            $result.WeakMatches += "SSL Policy Errors: $policyErrors"
+            $result.Notes += "SSL policy errors reported: $policyErrors"
+        }
+    }
+    catch {
+        $result.Notes += "TLS interception check error: $($_.Exception.Message)"
+    }
+    finally {
+        if ($sslStream) { $sslStream.Dispose() }
+        if ($tcpClient) { $tcpClient.Close(); $tcpClient.Dispose() }
+    }
+
+    return $result
+}
+
+function Test-ProxyHeaders {
+    <#
+    .SYNOPSIS
+        Inspects HTTP response headers for evidence of a proxy or middlebox
+        injecting its own headers.
+    #>
+    param($Headers)
+
+    $result = [PSCustomObject]@{
+        ProxyDetected   = $false
+        DetectedHeaders = @()
+        Notes           = @()
+        HighConfidenceHeaders = @()
+        WeakHeaders     = @()
+    }
+
+    if (-not $Headers) { return $result }
+
+    # Normalize header access
+    $headerKeys = @()
+    if ($Headers -is [hashtable]) {
+        $headerKeys = $Headers.Keys
+    } elseif ($Headers.GetEnumerator) {
+        foreach ($h in $Headers.GetEnumerator()) { $headerKeys += $h.Key }
+    }
+
+    foreach ($proxyHeader in $script:ProxyIndicatorHeaders) {
+        foreach ($key in $headerKeys) {
+            if ($key -ieq $proxyHeader) {
+                $value = $null
+                if ($Headers -is [hashtable]) { $value = $Headers[$key] }
+                else { $value = $Headers[$key] }
+                $result.DetectedHeaders += [PSCustomObject]@{
+                    Header = $key
+                    Value  = $value
+                }
+                $result.ProxyDetected = $true
+                if ($key -ieq 'Proxy-Authenticate' -or $key -ieq 'Proxy-Authorization') {
+                    $result.HighConfidenceHeaders += $key
+                } else {
+                    $result.WeakHeaders += $key
+                }
+            }
+        }
+    }
+
+    # Check for Via header that indicates intermediate proxies (not CDN)
+    foreach ($key in $headerKeys) {
+        if ($key -ieq 'Via') {
+            $viaValue = if ($Headers -is [hashtable]) { $Headers[$key] } else { $Headers[$key] }
+            # Via headers from CDNs are expected; flag non-CDN Via values
+            $cdnViaPatterns = @('cloudfront', 'akamai', 'fastly', 'cloudflare', 'varnish', 'vegur', 'Azure')
+            $isCDNVia = $false
+            foreach ($cvp in $cdnViaPatterns) {
+                if ($viaValue -match $cvp) { $isCDNVia = $true; break }
+            }
+            if (-not $isCDNVia) {
+                $result.Notes += "Non-CDN 'Via' header detected: $viaValue -- may indicate an intermediate proxy"
+            }
+        }
+    }
+
+    if ($result.DetectedHeaders.Count -gt 0) {
+        $result.Notes += "Found $($result.DetectedHeaders.Count) proxy-indicating header(s) in response"
+    }
+
+    return $result
+}
+
+function Get-SystemProxyConfiguration {
+    <#
+    .SYNOPSIS
+        Detects system-level proxy configuration on Windows:
+        HTTP_PROXY / HTTPS_PROXY env vars, WinINet proxy settings,
+        and PAC / WPAD auto-config URLs.
+    #>
+
+    $result = [PSCustomObject]@{
+        ProxyConfigured  = $false
+        EnvProxies       = @()
+        WinINetProxy     = $null
+        PACUrl           = $null
+        WPADEnabled      = $false
+        Notes            = @()
+    }
+
+    # 1. Environment variables
+    $envVars = @('HTTP_PROXY','HTTPS_PROXY','http_proxy','https_proxy','NO_PROXY','no_proxy','ALL_PROXY','all_proxy')
+    foreach ($var in $envVars) {
+        $val = [Environment]::GetEnvironmentVariable($var)
+        if ($val) {
+            $result.EnvProxies += [PSCustomObject]@{ Variable = $var; Value = $val }
+            $result.ProxyConfigured = $true
+        }
+    }
+
+    # 2. WinINet proxy settings (registry)
+    try {
+        $regPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings'
+        $proxyEnable = (Get-ItemProperty -Path $regPath -Name ProxyEnable -ErrorAction SilentlyContinue).ProxyEnable
+        $proxyServer = (Get-ItemProperty -Path $regPath -Name ProxyServer -ErrorAction SilentlyContinue).ProxyServer
+        $autoConfigUrl = (Get-ItemProperty -Path $regPath -Name AutoConfigURL -ErrorAction SilentlyContinue).AutoConfigURL
+
+        if ($proxyEnable -eq 1 -and $proxyServer) {
+            $result.WinINetProxy = $proxyServer
+            $result.ProxyConfigured = $true
+            $result.Notes += "System proxy configured via WinINet: $proxyServer"
+        }
+
+        if ($autoConfigUrl) {
+            $result.PACUrl = $autoConfigUrl
+            $result.ProxyConfigured = $true
+            $result.Notes += "PAC auto-config URL configured: $autoConfigUrl"
+        }
+    }
+    catch {
+        $result.Notes += "Could not read WinINet proxy settings: $($_.Exception.Message)"
+    }
+
+    # 3. WPAD (Web Proxy Auto-Discovery)
+    try {
+        $wpadResult = Resolve-DnsName -Name 'wpad' -Type A -ErrorAction SilentlyContinue -DnsOnly
+        if ($wpadResult) {
+            $result.WPADEnabled = $true
+            $result.ProxyConfigured = $true
+            $result.Notes += "WPAD DNS entry found -- auto-proxy discovery is active (resolves to $($wpadResult.IPAddress -join ', '))"
+        }
+    }
+    catch { }
+
+    # 4. .NET default proxy
+    try {
+        $defaultProxy = [System.Net.WebRequest]::DefaultWebProxy
+        if ($defaultProxy) {
+            $testUri = [Uri]'https://www.microsoft.com'
+            $proxyUri = $defaultProxy.GetProxy($testUri)
+            if ($proxyUri -and $proxyUri.AbsoluteUri -ne $testUri.AbsoluteUri) {
+                $result.Notes += ".NET default proxy routes traffic through: $($proxyUri.AbsoluteUri)"
+                $result.ProxyConfigured = $true
+            }
+        }
+    }
+    catch { }
+
+    return $result
+}
+
+function Get-TracerouteAnalysis {
+    <#
+    .SYNOPSIS
+        Runs tracert (ICMP) to the target host with early-abort on all-timeout
+        hops, then supplements with a TCP connectivity test via
+        Test-NetConnection (port 443). CDN endpoints like Azure Front Door
+        typically drop ICMP, so the TCP test is often more useful.
+    #>
+    param(
+        [string]$Hostname,
+        [int]$MaxHops = 15,
+        [int]$TimeoutMs = 1500,
+        [int]$EarlyAbortAfter = 5,         # kill tracert after this many consecutive all-timeout hops
+        [int]$Port = 443
+    )
+
+    $result = [PSCustomObject]@{
+        Hops               = @()
+        SuspiciousHops     = @()
+        TimeoutHops        = 0
+        TotalHops          = 0
+        LatencySpikeHop    = $null
+        ICMPAborted        = $false
+        TCPTest            = $null          # Test-NetConnection result summary
+        Notes              = @()
+    }
+
+    # ---- ICMP traceroute (with early abort) ----
+    Write-Info "  Running ICMP traceroute to $Hostname (max $MaxHops hops, abort after $EarlyAbortAfter consecutive timeouts)..." -Color Gray
+
+    try {
+        $proc = New-Object System.Diagnostics.Process
+        $proc.StartInfo.FileName = 'tracert.exe'
+        $proc.StartInfo.Arguments = "-d -h $MaxHops -w $TimeoutMs $Hostname"
+        $proc.StartInfo.RedirectStandardOutput = $true
+        $proc.StartInfo.RedirectStandardError = $true
+        $proc.StartInfo.UseShellExecute = $false
+        $proc.StartInfo.CreateNoWindow = $true
+        [void]$proc.Start()
+
+        $previousLatency = 0
+        $consecutiveTimeouts = 0
+        $aborted = $false
+
+        # Read stdout line-by-line for early abort
+        while (-not $proc.StandardOutput.EndOfStream) {
+            $line = $proc.StandardOutput.ReadLine()
+            if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+            if ($line -notmatch '^\s*(\d+)\s') { continue }
+
+            $segments = ($line -split '\s{2,}') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+            if ($segments.Count -lt 2 -or $segments[0] -notmatch '^\d+$') { continue }
+
+            $hopNumber = [int]$segments[0]
+            $lastToken = $segments[-1]
+            $ipPattern = '^[0-9A-Fa-f:\.]+(%\d+)?$'
+
+            if ($lastToken -notmatch $ipPattern) {
+                # Entire hop timed out (no IP reported)
+                $hop = [PSCustomObject]@{
+                    Hop = $hopNumber; IP = '*'; HostName = ''
+                    AvgLatency = -1; Timeouts = 3
+                    Suspicious = $false; Reason = ''
+                }
+                $result.Hops += $hop
+                $result.TimeoutHops++
+                $consecutiveTimeouts++
+
+                if ($consecutiveTimeouts -ge $EarlyAbortAfter) {
+                    $aborted = $true
+                    try { $proc.Kill() } catch {}
+                    $result.ICMPAborted = $true
+                    $result.Notes += "ICMP traceroute aborted after $EarlyAbortAfter consecutive timeout hops (ICMP likely blocked). Falling back to TCP test."
+                    break
+                }
+                continue
+            }
+
+            $ip = $lastToken
+            $timingTokens = if ($segments.Count -gt 2) { $segments[1..($segments.Count - 2)] } else { @() }
+            $latencies = @()
+            $timeoutCount = 0
+
+            foreach ($token in $timingTokens) {
+                if ($token -eq '*') {
+                    $timeoutCount++
+                }
+                elseif ($token -match '(\d+)\s*ms') {
+                    $latencies += [int]$Matches[1]
+                }
+                elseif ($token -match '<\s*1\s*ms') {
+                    $latencies += 0
+                }
+            }
+
+            $avgLatency = if ($latencies.Count -gt 0) { [math]::Round(($latencies | Measure-Object -Average).Average, 1) } else { -1 }
+            $consecutiveTimeouts = 0
+
+            $hopName = ''
+            try {
+                $dnsTask = [System.Net.Dns]::GetHostEntryAsync($ip)
+                if ($dnsTask.Wait(2000) -and $dnsTask.Status -eq 'RanToCompletion') {
+                    if ($dnsTask.Result.HostName -ne $ip) { $hopName = $dnsTask.Result.HostName }
+                }
+            } catch { }
+
+            $hop = [PSCustomObject]@{
+                Hop = $hopNumber; IP = $ip; HostName = $hopName
+                AvgLatency = $avgLatency; Timeouts = $timeoutCount
+                Suspicious = $false; Reason = ''
+            }
+
+            $searchText = "$ip $hopName".ToLower()
+            foreach ($pattern in $script:MiddleboxHopPatterns) {
+                if ($searchText -match [regex]::Escape($pattern)) {
+                    $hop.Suspicious = $true
+                    $hop.Reason = "Hostname/IP matches middlebox pattern: $pattern"
+                    $result.SuspiciousHops += $hop
+                    break
+                }
+            }
+
+            if ($avgLatency -gt 0 -and $previousLatency -ge 0) {
+                $jump = $avgLatency - $previousLatency
+                if ($jump -gt 50 -and -not $hop.Suspicious) {
+                    $hop.Suspicious = $true
+                    $hop.Reason = "Latency spike of ${jump}ms from previous hop (possible inspection delay)"
+                    $result.SuspiciousHops += $hop
+                }
+            }
+            if ($avgLatency -ge 0) { $previousLatency = $avgLatency }
+
+            if ($hopNumber -gt 2 -and $ip -match '^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.)') {
+                if (-not $hop.Suspicious) {
+                    $hop.Suspicious = $true
+                    $hop.Reason = "Private IP at hop $hopNumber -- traffic may traverse an internal NVA/firewall segment"
+                    $result.SuspiciousHops += $hop
+                }
+            }
+
+            $result.Hops += $hop
+        }
+
+        # Wait for process to finish if we didn't abort
+        if (-not $aborted) {
+            if (-not $proc.HasExited) {
+                $finished = $proc.WaitForExit(10000)
+                if (-not $finished) { try { $proc.Kill() } catch {} }
+            }
+        }
+        try { $proc.Dispose() } catch {}
+
+        $result.TotalHops = $result.Hops.Count
+
+        # Analyse timeout patterns
+        $realHops = ($result.Hops | Where-Object { $_.IP -ne '*' }).Count
+
+        if ($realHops -eq 0 -and $result.Hops.Count -gt 0 -and -not $aborted) {
+            $result.Notes += "All $($result.Hops.Count) hops timed out -- ICMP is blocked on this network (common for CDN/cloud endpoints). Traceroute is inconclusive."
+        } elseif ($realHops -gt 0) {
+            # Look for consecutive timeout runs among real hops (selective suppression)
+            $seqTimeouts = 0
+            foreach ($hop in $result.Hops) {
+                if ($hop.Timeouts -eq 3) { $seqTimeouts++ }
+                else {
+                    if ($seqTimeouts -ge 3) {
+                        $result.Notes += "Found $seqTimeouts consecutive timeout hops -- a firewall/NVA may be suppressing ICMP"
+                    }
+                    $seqTimeouts = 0
+                }
+            }
+            if ($seqTimeouts -ge 3 -and $realHops -gt 0) {
+                $result.Notes += "Found $seqTimeouts consecutive timeout hops at end of path -- ICMP-suppressing device likely present"
+            }
+        }
+    }
+    catch {
+        $result.Notes += "ICMP traceroute failed: $($_.Exception.Message)"
+    }
+
+    # ---- TCP connectivity test (Test-NetConnection) ----
+    # This works for AFD/CDN endpoints that drop ICMP but respond on TCP 443
+    Write-Info "  Running TCP connectivity test to ${Hostname}:${Port}..." -Color Gray
+    try {
+        $tcpResult = Test-NetConnection -ComputerName $Hostname -Port $Port -InformationLevel Detailed -WarningAction SilentlyContinue
+        # Extract SourceAddress IP properly (it's a CIM object, not a string)
+        $srcAddr = if ($tcpResult.SourceAddress.IPAddress) { "$($tcpResult.SourceAddress.IPAddress)" } else { "$($tcpResult.SourceAddress)" }
+        $ifAlias = $tcpResult.InterfaceAlias
+        $result.TCPTest = [PSCustomObject]@{
+            RemoteAddress      = "$($tcpResult.RemoteAddress)"
+            RemotePort         = $tcpResult.RemotePort
+            TcpTestSucceeded   = $tcpResult.TcpTestSucceeded
+            InterfaceAlias     = $ifAlias
+            SourceAddress      = $srcAddr
+            NextHop            = "$($tcpResult.NetRoute.NextHop)"
+            ResolvedAddresses  = @($tcpResult.NameResolutionResults | ForEach-Object { "$_" })
+            IsVPN              = $false
+        }
+
+        # Detect VPN interfaces -- these are on-path middlemen by definition
+        $vpnPatterns = @('VPN', 'Tunnel', 'TAP-', 'TUN', 'WireGuard', 'AzVPN', 'Cisco AnyConnect',
+                         'GlobalProtect', 'Fortinet', 'OpenVPN', 'ZeroTier', 'Tailscale', 'PANGP',
+                         'Juniper', 'Pulse Secure', 'F5 Access', 'SonicWall', 'Zscaler')
+        foreach ($vpnPattern in $vpnPatterns) {
+            if ($ifAlias -match [regex]::Escape($vpnPattern)) {
+                $result.TCPTest.IsVPN = $true
+                $result.Notes += "VPN DETECTED: Traffic is routed through VPN interface '$ifAlias'. This is an on-path middlebox that may modify, inspect, or re-encrypt traffic."
+                break
+            }
+        }
+
+        if ($tcpResult.TcpTestSucceeded) {
+            $result.Notes += "TCP:${Port} connectivity SUCCEEDED -- ${Hostname} is reachable (remote: $($tcpResult.RemoteAddress), source: ${srcAddr}, interface: ${ifAlias})"
+        } else {
+            $result.Notes += "TCP:${Port} connectivity FAILED -- ${Hostname} is NOT reachable on port $Port"
+        }
+    }
+    catch {
+        $result.Notes += "TCP connectivity test failed: $($_.Exception.Message)"
+    }
+
+    return $result
+}
+
+function Test-MTUPathDiscovery {
+    <#
+    .SYNOPSIS
+        Probes the path MTU by sending ICMP pings with the Don't Fragment
+        bit set at decreasing sizes. MTU problems (caused by VPN tunnels,
+        NVAs, or encapsulation) manifest as large-packet black-holing.
+    #>
+    param([string]$Hostname)
+
+    $result = [PSCustomObject]@{
+        MaxMTU         = 0
+        StandardMTU    = $false   # true if 1500 works
+        ReducedMTU     = $false   # true if only smaller sizes work
+        PossibleIssue  = $false
+        Notes          = @()
+    }
+
+    $sizes = @(1472, 1400, 1300, 1200, 1100, 1000, 500)   # payload sizes (+ 28 bytes IP+ICMP header = total)
+
+    Write-Info "  Testing path MTU to $Hostname..." -Color Gray
+
+    foreach ($size in $sizes) {
+        try {
+            # -f = Don't Fragment, -n 1 = one packet, -l = size, -w = timeout
+            $pingOutput = & ping.exe -f -n 1 -l $size -w 2000 $Hostname 2>&1
+            $pingText = $pingOutput -join ' '
+
+            if ($pingText -match 'Reply from' -and $pingText -notmatch 'needs to be fragmented') {
+                if ($result.MaxMTU -eq 0) {
+                    $result.MaxMTU = $size + 28   # total MTU including IP+ICMP headers
+                }
+                if ($size -eq 1472) {
+                    $result.StandardMTU = $true
+                }
+                break   # Largest working size found
+            }
+            elseif ($pingText -match 'needs to be fragmented|Packet needs to be fragmented') {
+                # DF bit caused rejection -- MTU is smaller than this size
+                continue
+            }
+            elseif ($pingText -match 'Request timed out|Destination host unreachable|General failure') {
+                # May be black-holed -- continue to smaller sizes
+                continue
+            }
+        }
+        catch {
+            continue
+        }
+    }
+
+    if ($result.MaxMTU -eq 0) {
+        # Even smallest size failed -- host may block ICMP entirely
+        $result.Notes += "All MTU probe sizes failed -- ICMP is likely blocked on this network. MTU test inconclusive (not a middlebox indicator on its own)."
+    }
+    elseif (-not $result.StandardMTU) {
+        $result.ReducedMTU = $true
+        $result.PossibleIssue = $true
+        $result.Notes += "Path MTU is reduced to ~$($result.MaxMTU) bytes (standard is 1500). This suggests VPN tunnel, NVA, or encapsulation overhead."
+    }
+    else {
+        $result.Notes += "Standard MTU (1500) works -- no encapsulation overhead detected on ICMP path"
+    }
+
+    return $result
+}
+
+function Test-ConnectionReuse {
+    <#
+    .SYNOPSIS
+        Tests whether repeated requests on the same TLS connection succeed.
+        Middleboxes with aggressive idle timers or broken keep-alive handling
+        cause failures on reused connections while fresh connections work.
+    #>
+    param(
+        [string]$Url,
+        [int]$Requests = 3,
+        [int]$DelayBetweenMs = 2000
+    )
+
+    $result = [PSCustomObject]@{
+        AllSucceeded    = $true
+        Results         = @()
+        ReuseIssue      = $false
+        Notes           = @()
+    }
+
+    if ($Url -notmatch '^https?://') { return $result }
+
+    Write-Info "  Testing connection reuse (keep-alive) with $Requests requests..." -Color Gray
+
+    $handler = $null
+    $httpClient = $null
+    $prevCallback = [System.Net.ServicePointManager]::ServerCertificateValidationCallback
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = { param($sender, $cert, $chain, $errors) return $true }
+
+    try {
+        # Use ServicePointManager for SSL bypass (PS 5.1 / .NET Framework compatible)
+        $handler = New-Object System.Net.Http.HttpClientHandler
+        $httpClient = New-Object System.Net.Http.HttpClient($handler)
+        $httpClient.Timeout = [TimeSpan]::FromSeconds(15)
+        [void]$httpClient.DefaultRequestHeaders.Add('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)')
+        $httpClient.DefaultRequestHeaders.ConnectionClose = $false   # keep-alive
+
+        if ($script:SubscriptionKey) {
+            [void]$httpClient.DefaultRequestHeaders.Add('ocp-apim-subscription-key', $script:SubscriptionKey)
+        }
+
+        for ($i = 1; $i -le $Requests; $i++) {
+            $sw = [System.Diagnostics.Stopwatch]::StartNew()
+            try {
+                $resp = $httpClient.GetAsync($Url).Result
+                $sw.Stop()
+                $statusCode = [int]$resp.StatusCode
+                $result.Results += [PSCustomObject]@{
+                    Request    = $i
+                    StatusCode = $statusCode
+                    LatencyMs  = $sw.ElapsedMilliseconds
+                    Success    = ($statusCode -gt 0)
+                }
+                $resp.Dispose()
+            }
+            catch {
+                $sw.Stop()
+                $result.Results += [PSCustomObject]@{
+                    Request    = $i
+                    StatusCode = 0
+                    LatencyMs  = $sw.ElapsedMilliseconds
+                    Success    = $false
+                    Error      = if ($_.Exception.InnerException) { $_.Exception.InnerException.Message } else { $_.Exception.Message }
+                }
+                $result.AllSucceeded = $false
+            }
+
+            if ($i -lt $Requests) {
+                Start-Sleep -Milliseconds $DelayBetweenMs
+            }
+        }
+    }
+    catch {
+        $result.Notes += "Connection reuse test error: $($_.Exception.Message)"
+    }
+    finally {
+        if ($httpClient) { $httpClient.Dispose() }
+        if ($handler) { $handler.Dispose() }
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $prevCallback
+    }
+
+    if ($result.Results.Count -eq 0) { return $result }
+
+    # Analyse results
+    $totalFails = ($result.Results | Where-Object { -not $_.Success }).Count
+    $firstOk = $result.Results[0].Success
+
+    if ($totalFails -eq $result.Results.Count) {
+        $errMsg = if ($result.Results[0].Error) { $result.Results[0].Error } else { 'unknown' }
+        $result.Notes += "All $totalFails requests failed (error: $errMsg). This may indicate a proxy, SSL, or connectivity issue -- not necessarily a keep-alive problem."
+    } elseif ($firstOk -and $totalFails -gt 0) {
+        $result.ReuseIssue = $true
+        $result.Notes += "First request succeeded but $totalFails subsequent request(s) failed -- possible middlebox idle-timeout or keep-alive issue"
+    }
+
+    if ($result.Results.Count -ge 2 -and $firstOk) {
+        $firstLatency = $result.Results[0].LatencyMs
+        $laterLatencies = ($result.Results | Select-Object -Skip 1).LatencyMs
+        $avgLater = ($laterLatencies | Measure-Object -Average).Average
+        if ($avgLater -gt ($firstLatency * 3) -and $avgLater -gt 1000) {
+            $result.Notes += "Significant latency increase on connection reuse (first: ${firstLatency}ms, subsequent avg: $([math]::Round($avgLater))ms)"
+            $result.ReuseIssue = $true
+        }
+    }
+
+    return $result
+}
+
+function Test-SecurityAgentPresence {
+    <#
+    .SYNOPSIS
+        Detects SASE/SSE/security agents (Netskope, Zscaler, etc.) installed
+        on the local machine. These agents can intercept, inspect, or redirect
+        traffic even when TLS interception isn't visible for a specific URL
+        (e.g., domain-bypass lists can exempt certain sites).
+    #>
+    param([string]$Hostname)
+
+    $result = [PSCustomObject]@{
+        AgentsFound   = @()
+        AgentDetected = $false
+        Notes         = @()
+    }
+
+    # Define known SASE/SSE/proxy security agents
+    $agents = @(
+        @{
+            Name            = 'Netskope'
+            Processes       = @('stAgentSvc','STAgent','nssvc','nsservice','NSkpAgent','NSkpClient','nsagentupdater')
+            CertPatterns    = @('Netskope','NSkope')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Netskope','HKLM:\SOFTWARE\WOW6432Node\Netskope')
+            ServicePatterns = @('stAgentSvc','nssvc','NSkpAgent')
+            AdapterPatterns = @('Netskope')
+        },
+        @{
+            Name            = 'Zscaler'
+            Processes       = @('ZSATunnel','ZscalerService','ZSAService','zscaler')
+            CertPatterns    = @('Zscaler','ZscalerRootCertificate')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Zscaler','HKLM:\SOFTWARE\WOW6432Node\Zscaler')
+            ServicePatterns = @('ZSATunnel','Zscaler')
+            AdapterPatterns = @('Zscaler')
+        },
+        @{
+            Name            = 'Palo Alto Prisma / GlobalProtect'
+            Processes       = @('PanGPA','PanGPS','GlobalProtect','prisma-access')
+            CertPatterns    = @('Palo Alto','GlobalProtect','Prisma Access')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Palo Alto Networks')
+            ServicePatterns = @('PanGPS','GlobalProtect','PanGPA')
+            AdapterPatterns = @('PANGP','GlobalProtect')
+        },
+        @{
+            Name            = 'Cisco Secure Access / Umbrella'
+            Processes       = @('csc_ui','swg_agent','Umbrella','acumbrellaagent','vpnagent')
+            CertPatterns    = @('Cisco Umbrella','OpenDNS','Cisco Secure')
+            RegistryPaths   = @('HKLM:\SOFTWARE\OpenDNS','HKLM:\SOFTWARE\Cisco\Cisco Secure Client')
+            ServicePatterns = @('aciseagent','vpnagent','csc_ui','Umbrella')
+            AdapterPatterns = @('Cisco AnyConnect','Cisco Secure')
+        },
+        @{
+            Name            = 'Forcepoint ONE / Web Security'
+            Processes       = @('FORCEPOINT','fpdiag','FPConnectAgent','fppsvc')
+            CertPatterns    = @('Forcepoint')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Forcepoint')
+            ServicePatterns = @('FPEP','FPConnectAgent','fppsvc')
+            AdapterPatterns = @()
+        },
+        @{
+            Name            = 'Symantec / Broadcom WSS'
+            Processes       = @('ccSvcHst','WSSSvc')
+            CertPatterns    = @('Symantec Web Security','Broadcom Web Security')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Symantec\Web Security Service')
+            ServicePatterns = @('WSSSvc','SepMasterService')
+            AdapterPatterns = @()
+        },
+        @{
+            Name            = 'McAfee / Skyhigh Web Gateway'
+            Processes       = @('mwg','McAfeeWG','MFEEsp')
+            CertPatterns    = @('McAfee Web Gateway','McAfee MITM','Skyhigh')
+            RegistryPaths   = @('HKLM:\SOFTWARE\McAfee\Web Gateway')
+            ServicePatterns = @('McAfeeFramework','mfefire')
+            AdapterPatterns = @()
+        },
+        @{
+            Name            = 'iboss Cloud Security'
+            Processes       = @('iboss','ibsa','ibossDesktopAgent')
+            CertPatterns    = @('iboss')
+            RegistryPaths   = @('HKLM:\SOFTWARE\iboss')
+            ServicePatterns = @('iboss','ibsa')
+            AdapterPatterns = @()
+        },
+        @{
+            Name            = 'Menlo Security'
+            Processes       = @('menlo','MenloSecurityAgent')
+            CertPatterns    = @('Menlo Security')
+            RegistryPaths   = @('HKLM:\SOFTWARE\Menlo Security')
+            ServicePatterns = @('MenloSecurity')
+            AdapterPatterns = @()
+        }
+    )
+
+    Write-Info "  Scanning for SASE/SSE security agents..." -Color Gray
+
+    foreach ($agent in $agents) {
+        $evidence = @()
+
+        # 1. Check running processes
+        foreach ($procName in $agent.Processes) {
+            try {
+                $procs = Get-Process -Name $procName -ErrorAction SilentlyContinue
+                if ($procs) {
+                    $pids = ($procs | ForEach-Object { $_.Id }) -join ', '
+                    $evidence += "Process '$procName' is running (PID: $pids)"
+                }
+            } catch {}
+        }
+
+        # 2. Check Windows services
+        foreach ($svcPattern in $agent.ServicePatterns) {
+            try {
+                $svcs = Get-Service -Name "*$svcPattern*" -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Running' }
+                foreach ($svc in $svcs) {
+                    $evidence += "Service '$($svc.Name)' ($($svc.DisplayName)) is running"
+                }
+            } catch {}
+        }
+
+        # 3. Check registry for installation footprint
+        foreach ($regPath in $agent.RegistryPaths) {
+            try {
+                if (Test-Path $regPath) {
+                    $evidence += "Registry key present: $regPath"
+                }
+            } catch {}
+        }
+
+        # 4. Check certificate stores for MITM root CAs
+        foreach ($certPattern in $agent.CertPatterns) {
+            try {
+                $escapedPattern = [regex]::Escape($certPattern)
+                # Trusted Root CAs
+                $rootCerts = Get-ChildItem -Path 'Cert:\LocalMachine\Root' -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Issuer -match $escapedPattern -or $_.Subject -match $escapedPattern }
+                foreach ($c in $rootCerts) {
+                    $evidence += "Root CA installed: $($c.Subject) (thumbprint: $($c.Thumbprint.Substring(0,8))...)"
+                }
+                # Intermediate CAs
+                $intCerts = Get-ChildItem -Path 'Cert:\LocalMachine\CA' -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Issuer -match $escapedPattern -or $_.Subject -match $escapedPattern }
+                foreach ($c in $intCerts) {
+                    $evidence += "Intermediate CA installed: $($c.Subject)"
+                }
+            } catch {}
+        }
+
+        # 5. Check network adapters
+        foreach ($adapterPattern in $agent.AdapterPatterns) {
+            try {
+                $adapters = Get-NetAdapter -ErrorAction SilentlyContinue |
+                    Where-Object { $_.InterfaceDescription -match [regex]::Escape($adapterPattern) -or $_.Name -match [regex]::Escape($adapterPattern) }
+                foreach ($a in $adapters) {
+                    $evidence += "Network adapter: '$($a.Name)' ($($a.InterfaceDescription)) - Status: $($a.Status)"
+                }
+            } catch {}
+        }
+
+        if ($evidence.Count -gt 0) {
+            $result.AgentsFound += [PSCustomObject]@{
+                Name     = $agent.Name
+                Evidence = $evidence
+            }
+            $result.AgentDetected = $true
+        }
+    }
+
+    # Summary
+    if ($result.AgentDetected) {
+        $agentNames = ($result.AgentsFound | ForEach-Object { $_.Name }) -join ', '
+        $result.Notes += "Security agent(s) detected on this machine: $agentNames. Even if TLS interception is not visible for '$Hostname', the agent may be steering DNS, tunneling traffic, or bypassing this domain."
+    } else {
+        $result.Notes += "No SASE/SSE security agents detected on this machine"
+    }
+
+    return $result
+}
+
+function Test-OriginCertPath {
+    <#
+    .SYNOPSIS
+        Auto-discovers probable origin servers (behind the CDN) and probes them
+        directly for TLS cert and IP ownership. If a SASE/SSE device (Netskope,
+        Zscaler, etc.) sits between the CDN and origin, this function can detect
+        it through:
+          - DNS CNAMEs pointing to SASE infrastructure (e.g., *.goskope.com)
+          - TLS certificates issued by SASE CAs on the origin
+          - IP address ownership by a SASE vendor (ASN/org whois)
+    .NOTES
+        This test is meaningful because the script user sees the CDN-to-client
+        leg (clean), but a middlebox between CDN and origin is invisible unless
+        we probe the origin directly.
+    #>
+    param(
+        [string]$Hostname,
+        $Response,
+        [string[]]$CNAMEChain = @()
+    )
+
+    $result = [PSCustomObject]@{
+        OriginCandidates = @()     # all discovered origins
+        SASEDetected     = $false
+        SASEFindings     = @()     # list of [PSCustomObject]@{ Origin; Provider; Evidence; Signal }
+        Notes            = @()
+    }
+
+    Write-Info "  Discovering origin candidates for $Hostname..." -Color Gray
+
+    # ---- 1. Discover origin candidates ----
+    $candidates = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    # 1a. Apex domain (strip subdomains down to registrable domain)
+    $parts = $Hostname.Split('.')
+    if ($parts.Count -ge 2) {
+        $apex = "$($parts[-2]).$($parts[-1])"
+        # Handle co.uk, com.au, etc. -- crude but effective
+        $slds = @('co','com','org','net','edu','gov','ac','gob')
+        if ($parts.Count -ge 3 -and $slds -contains $parts[-2]) {
+            $apex = "$($parts[-3]).$($parts[-2]).$($parts[-1])"
+        }
+        if ($apex -ne $Hostname) { [void]$candidates.Add($apex) }
+    }
+
+    # 1b. Mine CSP header for whitelisted origins
+    if ($Response -and $Response.Headers) {
+        $cspHeader = $null
+        if ($Response.Headers['Content-Security-Policy']) { $cspHeader = "$($Response.Headers['Content-Security-Policy'])" }
+        if ($cspHeader) {
+            # Extract https:// URLs from CSP
+            $cspMatches = [regex]::Matches($cspHeader, 'https?://([a-zA-Z0-9\-\.]+)')
+            foreach ($m in $cspMatches) {
+                $cspHost = $m.Groups[1].Value.TrimEnd('.')
+                # Skip known public CDNs, google, and the hostname itself
+                if ($cspHost -ne $Hostname -and
+                    $cspHost -notmatch '(googleapis|gstatic|google|cloudflare|cdnjs|jsdelivr|unpkg|jquery|bootstrapcdn)') {
+                    [void]$candidates.Add($cspHost)
+                }
+            }
+        }
+
+        # 1c. Mine CORS Access-Control-Allow-Origin
+        $corsHeader = $null
+        if ($Response.Headers['Access-Control-Allow-Origin']) { $corsHeader = "$($Response.Headers['Access-Control-Allow-Origin'])" }
+        if ($corsHeader -and $corsHeader -ne '*') {
+            $corsMatch = [regex]::Match($corsHeader, 'https?://([a-zA-Z0-9\-\.]+)')
+            if ($corsMatch.Success) {
+                $corsHost = $corsMatch.Groups[1].Value.TrimEnd('.')
+                if ($corsHost -ne $Hostname) { [void]$candidates.Add($corsHost) }
+            }
+        }
+
+        # 1d. Check X-Powered-By / Server for platform hints -> construct origin guess
+        $poweredBy = $null
+        if ($Response.Headers['X-Powered-By']) { $poweredBy = "$($Response.Headers['X-Powered-By'])" }
+        if ($poweredBy -match 'ASP\.NET|Express|PHP') {
+            # Try common Azure App Service naming: {sitename}.azurewebsites.net
+            $baseName = ($Hostname -replace '\..*$', '')
+            [void]$candidates.Add("$baseName.azurewebsites.net")
+        }
+    }
+
+    # 1e. Common origin naming patterns
+    $baseName = ($Hostname -replace '\..*$', '')
+    $domainSuffix = $Hostname.Substring($baseName.Length + 1)
+    $originGuesses = @(
+        "origin.$Hostname",
+        "origin-$Hostname",
+        "origin.$domainSuffix",
+        "api.$domainSuffix",
+        "backend.$domainSuffix",
+        "app.$domainSuffix"
+    )
+    foreach ($guess in $originGuesses) {
+        [void]$candidates.Add($guess)
+    }
+
+    # 1f. Check CNAME chain for non-CDN entries that might be origin
+    foreach ($cname in $CNAMEChain) {
+        # Skip known CDN CNAMEs
+        if ($cname -match 'azurefd\.net|afdverify|trafficmanager|msedge\.net|cloudfront|fastly|akamai|edgecast|cloudflare') { continue }
+        [void]$candidates.Add($cname)
+    }
+
+    # Remove the original hostname and any CDN hostnames
+    [void]$candidates.Remove($Hostname)
+
+    $result.OriginCandidates = @($candidates)
+    if ($candidates.Count -eq 0) {
+        $result.Notes += "No origin candidates discovered"
+        return $result
+    }
+
+    Write-Info "  Found $($candidates.Count) origin candidate(s): $($candidates -join ', ')" -Color Gray
+
+    # ---- 2. Check DNS of each candidate for SASE CNAME patterns ----
+    Write-Info "  Probing origin candidates for SASE/middlebox indicators..." -Color Gray
+
+    foreach ($origin in $candidates) {
+        # 2a. DNS resolution -- look for SASE CNAMEs
+        $dnsChain = @()
+        try {
+            $dnsRecords = Resolve-DnsName -Name $origin -ErrorAction SilentlyContinue
+            if (-not $dnsRecords) { continue }  # NXDOMAIN or no result
+
+            foreach ($rec in $dnsRecords) {
+                if ($rec.Type -eq 'CNAME') {
+                    $dnsChain += $rec.NameHost
+                }
+            }
+            $resolvedIPs = @($dnsRecords | Where-Object { $_.Type -eq 'A' } | ForEach-Object { $_.IPAddress })
+        }
+        catch { continue }  # skip unresolvable candidates
+
+        # Check CNAME chain for SASE patterns
+        $allDnsText = ($dnsChain + @($origin)) -join ' '
+        foreach ($saseProvider in $script:SASEDnsPatterns) {
+            foreach ($pattern in $saseProvider.Patterns) {
+                if ($allDnsText -match [regex]::Escape($pattern)) {
+                    $result.SASEDetected = $true
+                    $result.SASEFindings += [PSCustomObject]@{
+                        Origin   = $origin
+                        Provider = $saseProvider.Name
+                        Evidence = "DNS CNAME chain contains '$pattern': $($dnsChain -join ' -> ')"
+                        Signal   = 'HIGH'
+                    }
+                    Write-Info "    [!] SASE DNS match: $origin -> $($saseProvider.Name) ($pattern)" -Color Red
+                }
+            }
+        }
+
+        # 2b. TLS certificate probe (connect directly on 443)
+        if ($resolvedIPs.Count -gt 0) {
+            $tcpClient = $null
+            $sslStream = $null
+            try {
+                $tcpClient = [System.Net.Sockets.TcpClient]::new()
+                $connectTask = $tcpClient.ConnectAsync($origin, 443)
+                if (-not $connectTask.Wait(5000)) {
+                    throw "TLS connect to $origin timed out after 5 seconds"
+                }
+
+                $validationCallback = [Net.Security.RemoteCertificateValidationCallback]{ param($s,$c,$ch,$e); return $true }
+                $sslStream = [Net.Security.SslStream]::new($tcpClient.GetStream(), $false, $validationCallback)
+                $sslStream.ReadTimeout = 5000
+                $sslStream.AuthenticateAsClient($origin)
+
+                $cert = [Security.Cryptography.X509Certificates.X509Certificate2]::new($sslStream.RemoteCertificate)
+                $issuerText = "$($cert.Issuer) $($cert.GetNameInfo('SimpleName',$true))"
+
+                $matchedHigh = $false
+                foreach ($pattern in $script:HighConfidenceMITMIssuers) {
+                    if ($issuerText -match [regex]::Escape($pattern)) {
+                        $result.SASEDetected = $true
+                        $result.SASEFindings += [PSCustomObject]@{
+                            Origin   = $origin
+                            Provider = $pattern
+                            Evidence = "TLS cert issuer matches SASE/MITM pattern '$pattern': $($cert.Issuer)"
+                            Signal   = 'HIGH'
+                        }
+                        Write-Info "    [!] SASE TLS cert: $origin issuer matches '$pattern'" -Color Red
+                        $matchedHigh = $true
+                        break
+                    }
+                }
+
+                if (-not $matchedHigh) {
+                    foreach ($pattern in $script:WeakMITMIssuers) {
+                        if ($issuerText -match [regex]::Escape($pattern)) {
+                            $result.SASEDetected = $true
+                            $result.SASEFindings += [PSCustomObject]@{
+                                Origin   = $origin
+                                Provider = $pattern
+                                Evidence = "TLS cert issuer contains weak MITM marker '$pattern': $($cert.Issuer)"
+                                Signal   = 'MEDIUM'
+                            }
+                            Write-Info "    [!] Possible SASE TLS cert: $origin issuer contains '$pattern'" -Color Yellow
+                            break
+                        }
+                    }
+                }
+
+                # Also record the cert for display even if clean
+                $result.Notes += "Origin '$origin' TLS cert: Subject=$($cert.Subject), Issuer=$($cert.Issuer)"
+            }
+            catch {
+                # Connection refused or timeout is fine -- origin may not be directly reachable
+                $result.Notes += "Origin '$origin' port 443 not reachable directly: $($_.Exception.Message -replace '[\r\n]+',' ')"
+            }
+            finally {
+                if ($sslStream) { $sslStream.Dispose() }
+                if ($tcpClient) { $tcpClient.Close(); $tcpClient.Dispose() }
+            }
+        }
+
+        # 2c. IP ownership check via ip-api.com (rate-limit friendly: max 3 IPs)
+        $ipsToCheck = @($resolvedIPs | Select-Object -First 3)
+        foreach ($ip in $ipsToCheck) {
+            try {
+                $geo = Invoke-RestMethod -Uri "http://ip-api.com/json/$ip" -TimeoutSec 5 -ErrorAction SilentlyContinue
+                if ($geo -and $geo.status -eq 'success') {
+                    $orgText = "$($geo.org) $($geo.isp) $($geo.as)"
+                    foreach ($saseOrg in $script:SASEIPOrgPatterns) {
+                        foreach ($orgPattern in $saseOrg.Patterns) {
+                            if ($orgText -match [regex]::Escape($orgPattern)) {
+                                $result.SASEDetected = $true
+                                $result.SASEFindings += [PSCustomObject]@{
+                                    Origin   = $origin
+                                    Provider = $saseOrg.Name
+                                    Evidence = "Origin IP $ip belongs to $($saseOrg.Name) (Org: $($geo.org), ISP: $($geo.isp), AS: $($geo.as))"
+                                    Signal   = 'HIGH'
+                                }
+                                Write-Info "    [!] SASE IP: $ip belongs to $($saseOrg.Name)" -Color Red
+                            }
+                        }
+                    }
+                }
+                Start-Sleep -Milliseconds 200   # rate-limit courtesy
+            }
+            catch { }
+        }
+    }
+
+    if (-not $result.SASEDetected) {
+        $result.Notes += "No SASE/SSE middlebox indicators found on origin candidates"
+    }
+
+    return $result
+}
+
+function Test-MiddlemanPresence {
+    <#
+    .SYNOPSIS
+        Orchestrates all middleman / middlebox detection checks for a given URL.
+        Returns a comprehensive result object with findings from every method.
+    #>
+    param(
+        [string]$Url,
+        $Response,
+        $TLSInfo,
+        [string[]]$CNAMEChain = @()
+    )
+
+    $uri = [Uri]$Url
+    $hostname = $uri.Host
+
+    Write-Info "`n--- Middleman / Middlebox Detection ---" -Color Magenta
+    Write-Info "Running middlebox detection checks for $hostname..." -Color Gray
+
+    # 1. TLS Interception Check
+    Write-Info "  [1/8] Checking TLS certificate for interception..." -Color Gray
+    $tlsInterception = Test-TLSInterception -Url $Url
+
+    # 2. DNS steering comparison
+    Write-Info "  [2/8] Checking for DNS steering (system vs public resolver)..." -Color Gray
+    $dnsSteering = Test-DnsSteering -Hostname $hostname
+
+    # 3. Proxy Header Analysis
+    Write-Info "  [3/8] Analyzing response headers for proxy indicators..." -Color Gray
+    $proxyHeaders = $null
+    if ($Response) {
+        $proxyHeaders = Test-ProxyHeaders -Headers $Response.Headers
+    } else {
+        $proxyHeaders = [PSCustomObject]@{
+            ProxyDetected = $false
+            DetectedHeaders = @()
+            Notes = @('No HTTP response available for header analysis')
+            HighConfidenceHeaders = @()
+            WeakHeaders = @()
+        }
+    }
+
+    # 4. System Proxy Configuration
+    Write-Info "  [4/8] Checking system proxy configuration..." -Color Gray
+    $proxyConfig = Get-SystemProxyConfiguration
+
+    # 5. Security Agent Detection (Netskope, Zscaler, etc.)
+    Write-Info "  [5/8] Scanning for SASE/SSE security agents..." -Color Gray
+    $securityAgents = Test-SecurityAgentPresence -Hostname $hostname
+
+    # 6. Origin Cert / SASE Path Detection
+    Write-Info "  [6/8] Probing origin servers for SASE/middlebox in CDN-to-origin path..." -Color Gray
+    $originCertPath = Test-OriginCertPath -Hostname $hostname -Response $Response -CNAMEChain $CNAMEChain
+
+    # 7. Traceroute Analysis
+    Write-Info "  [7/8] Running traceroute analysis..." -Color Gray
+    $traceroute = Get-TracerouteAnalysis -Hostname $hostname
+
+    # 8. MTU Path Discovery
+    Write-Info "  [8/8] Testing path MTU..." -Color Gray
+    $mtuTest = Test-MTUPathDiscovery -Hostname $hostname
+
+    # 8. Connection Reuse Test (bonus -- fast)
+    Write-Info "  [bonus] Testing connection reuse (keep-alive)..." -Color Gray
+    $connReuse = Test-ConnectionReuse -Url $Url
+
+    # Build overall verdict
+    $signals = [System.Collections.Generic.List[object]]::new()
+    $confidence = 'None'
+    $middlemanDetected = $false
+    $addSignal = {
+        param($check,$signal,$detail)
+        $signals.Add([PSCustomObject]@{ Check = $check; Signal = $signal; Detail = $detail })
+        if ($signal -ne 'INFO') {
+            Set-Variable -Name middlemanDetected -Scope 1 -Value $true
+        }
+    }
+
+    if ($tlsInterception.HighConfidenceMatches.Count -gt 0 -or $tlsInterception.Intercepted) {
+        $detail = if ($tlsInterception.Notes.Count -gt 0) { $tlsInterception.Notes -join '; ' } else { "Issuer: $($tlsInterception.Issuer)" }
+        & $addSignal 'TLS Interception' 'HIGH' $detail
+    } elseif ($tlsInterception.WeakMatches.Count -gt 0) {
+        $detail = if ($tlsInterception.Notes.Count -gt 0) { $tlsInterception.Notes -join '; ' } else { 'Weak TLS indicators present' }
+        & $addSignal 'TLS Inspection Hints' 'LOW' $detail
+    }
+
+    if ($dnsSteering.DivergenceDetected) {
+        $detail = if ($dnsSteering.Notes.Count -gt 0) { $dnsSteering.Notes[-1] } else { 'System and public DNS returned different answers' }
+        & $addSignal 'DNS Steering' 'HIGH' $detail
+    }
+
+    if ($proxyHeaders.ProxyDetected) {
+        $detail = if ($proxyHeaders.Notes.Count -gt 0) { $proxyHeaders.Notes -join '; ' } else { 'Proxy headers observed' }
+        if ($proxyHeaders.HighConfidenceHeaders.Count -gt 0) {
+            & $addSignal 'Proxy Authentication Header' 'HIGH' "$detail (Headers: $($proxyHeaders.HighConfidenceHeaders -join ', '))"
+        } else {
+            & $addSignal 'Proxy Headers' 'LOW' $detail
+        }
+    }
+
+    if ($proxyConfig.ProxyConfigured) {
+        $detail = if ($proxyConfig.Notes.Count -gt 0) { $proxyConfig.Notes -join '; ' } else { 'System proxy configured' }
+        & $addSignal 'System Proxy Config' 'HIGH' $detail
+    }
+
+    if ($securityAgents.AgentDetected) {
+        foreach ($agentInfo in $securityAgents.AgentsFound) {
+            $evidenceSummary = ($agentInfo.Evidence | Select-Object -First 3) -join '; '
+            if ($agentInfo.Evidence.Count -gt 3) { $evidenceSummary += " (+$($agentInfo.Evidence.Count - 3) more)" }
+            & $addSignal "Security Agent ($($agentInfo.Name))" 'HIGH' $evidenceSummary
+        }
+    }
+
+    if ($originCertPath.SASEDetected) {
+        foreach ($finding in $originCertPath.SASEFindings) {
+            & $addSignal "Origin SASE/SSE ($($finding.Provider))" $finding.Signal $finding.Evidence
+        }
+    }
+
+    if ($traceroute.SuspiciousHops.Count -gt 0) {
+        $hopDetails = ($traceroute.SuspiciousHops | ForEach-Object { "Hop $($_.Hop) ($($_.IP)): $($_.Reason)" }) -join '; '
+        & $addSignal 'Traceroute' 'MEDIUM' $hopDetails
+    }
+
+    if ($traceroute.Notes.Count -gt 0) {
+        $tcpSucceeded = $traceroute.TCPTest -and $traceroute.TCPTest.TcpTestSucceeded
+        foreach ($note in $traceroute.Notes) {
+            if ($note -match 'consecutive timeout|ICMP-suppress' -and $note -notmatch 'All .+ hops timed out|inconclusive|aborted after') {
+                if ($tcpSucceeded -and $note -match 'at end of path') {
+                    continue
+                }
+                & $addSignal 'Traceroute (ICMP suppression)' 'LOW' $note
+            }
+        }
+    }
+
+    if ($traceroute.TCPTest -and $traceroute.TCPTest.IsVPN) {
+        $detail = "Traffic is routed through VPN interface '$($traceroute.TCPTest.InterfaceAlias)'. VPN gateways can modify packets, re-encrypt TLS, inject headers, or enforce content policies."
+        & $addSignal 'VPN Interface' 'MEDIUM' $detail
+    }
+
+    if ($mtuTest.PossibleIssue) {
+        $detail = if ($mtuTest.Notes.Count -gt 0) { $mtuTest.Notes -join '; ' } else { 'Reduced MTU detected' }
+        & $addSignal 'MTU Path Discovery' 'MEDIUM' $detail
+    }
+
+    if ($connReuse.ReuseIssue) {
+        $detail = if ($connReuse.Notes.Count -gt 0) { $connReuse.Notes -join '; ' } else { 'Connection reuse failed' }
+        & $addSignal 'Connection Reuse' 'MEDIUM' $detail
+    }
+
+    # Determine overall confidence
+    $highSignals  = ($signals | Where-Object { $_.Signal -eq 'HIGH' }).Count
+    $medSignals   = ($signals | Where-Object { $_.Signal -eq 'MEDIUM' }).Count
+    $lowSignals   = ($signals | Where-Object { $_.Signal -eq 'LOW' }).Count
+    if ($highSignals -ge 1) {
+        $confidence = 'HIGH'
+    } elseif ($medSignals -ge 2) {
+        $confidence = 'HIGH'
+    } elseif ($medSignals -eq 1) {
+        $confidence = 'MEDIUM'
+    } elseif ($lowSignals -gt 0) {
+        $confidence = 'LOW'
+    }
+
+    return [PSCustomObject]@{
+        MiddlemanDetected  = $middlemanDetected
+        Confidence         = $confidence
+        Signals            = $signals
+        TLSInterception    = $tlsInterception
+        DnsSteering        = $dnsSteering
+        ProxyHeaders       = $proxyHeaders
+        ProxyConfig        = $proxyConfig
+        SecurityAgents     = $securityAgents
+        OriginCertPath     = $originCertPath
+        Traceroute         = $traceroute
+        MTUTest            = $mtuTest
+        ConnectionReuse    = $connReuse
+    }
+}
+
+function Show-MiddlemanResults {
+    <#
+    .SYNOPSIS
+        Displays the middleman detection results in a formatted output.
+    #>
+    param([PSCustomObject]$MiddlemanInfo)
+
+    if (-not $MiddlemanInfo) { return }
+
+    # --- Overall Verdict ---
+    Write-Info "`n=== MIDDLEMAN / MIDDLEBOX DETECTION RESULTS ===" -Color Magenta
+    if ($MiddlemanInfo.MiddlemanDetected) {
+        $color = switch ($MiddlemanInfo.Confidence) {
+            'HIGH'   { 'Red' }
+            'MEDIUM' { 'Yellow' }
+            default  { 'Gray' }
+        }
+        Write-Info "  MIDDLEBOX DETECTED  (Confidence: $($MiddlemanInfo.Confidence))" -Color $color
+    } else {
+        Write-Info "  No middlebox indicators found" -Color Green
+    }
+
+    # --- Signal Summary ---
+    if ($MiddlemanInfo.Signals.Count -gt 0) {
+        Write-Info "`n  Detection Signals:" -Color Cyan
+        foreach ($sig in $MiddlemanInfo.Signals) {
+            $sigColor = switch ($sig.Signal) {
+                'HIGH'   { 'Red' }
+                'MEDIUM' { 'Yellow' }
+                default  { 'Gray' }
+            }
+            Write-Info "    [$($sig.Signal)] $($sig.Check)" -Color $sigColor
+            Write-Info "        $($sig.Detail)" -Color Gray
+        }
+    }
+
+    # --- TLS Interception Detail ---
+    Write-Info "`n  1. TLS Certificate Inspection:" -Color Cyan
+    if ($MiddlemanInfo.TLSInterception.Intercepted) {
+        Write-Info "     INTERCEPTED - Certificate chain is NOT from a well-known public CA" -Color Red
+        Write-Info "     Issuer: $($MiddlemanInfo.TLSInterception.Issuer)" -Color Yellow
+        if ($MiddlemanInfo.TLSInterception.MatchedPattern) {
+            Write-Info "     Matched: $($MiddlemanInfo.TLSInterception.MatchedPattern)" -Color Yellow
+        }
+    } else {
+        Write-Info "     Certificate chain appears legitimate (no TLS interception detected)" -Color Green
+        if ($MiddlemanInfo.TLSInterception.Issuer) {
+            Write-Info "     Issuer: $($MiddlemanInfo.TLSInterception.Issuer)" -Color Gray
+        }
+    }
+    if ($MiddlemanInfo.TLSInterception.LeafThumbprint) {
+        Write-Info "     Leaf Thumbprint: $($MiddlemanInfo.TLSInterception.LeafThumbprint)" -Color Gray
+    }
+    if ($MiddlemanInfo.TLSInterception.SubjectAlternativeNames.Count -gt 0) {
+        $sanDisplay = ($MiddlemanInfo.TLSInterception.SubjectAlternativeNames | Select-Object -First 5) -join ', '
+        if ($MiddlemanInfo.TLSInterception.SubjectAlternativeNames.Count -gt 5) {
+            $sanDisplay += ' ...'
+        }
+        Write-Info "     SANs: $sanDisplay" -Color Gray
+    }
+    if ($MiddlemanInfo.TLSInterception.HostnameMatches -eq $false) {
+        Write-Info "     [!] Hostname does NOT match certificate SAN/CN" -Color Yellow
+    }
+    if ($MiddlemanInfo.TLSInterception.SslPolicyErrors -and $MiddlemanInfo.TLSInterception.SslPolicyErrors -ne 'None') {
+        Write-Info "     SSL Policy Errors: $($MiddlemanInfo.TLSInterception.SslPolicyErrors)" -Color Yellow
+    }
+    if ($MiddlemanInfo.TLSInterception.CertificateChain.Count -gt 0) {
+        Write-Info "     Certificate Chain:" -Color Gray
+        foreach ($chainCert in $MiddlemanInfo.TLSInterception.CertificateChain) {
+            Write-Info "       -> $($chainCert.Subject)" -Color Gray
+        }
+    }
+    foreach ($note in $MiddlemanInfo.TLSInterception.Notes) {
+        Write-Info "     Note: $note" -Color Gray
+    }
+
+    # --- DNS Steering ---
+    Write-Info "`n  2. DNS Steering Check:" -Color Cyan
+    $dns = $MiddlemanInfo.DnsSteering
+    if ($dns) {
+        if ($dns.DivergenceDetected) {
+            Write-Info "     DNS ANSWERS DIFFER between system and public resolver" -Color Red
+        } elseif (-not ($dns.SystemQuerySucceeded -and $dns.PublicQuerySucceeded)) {
+            Write-Info "     DNS comparison inconclusive" -Color Yellow
+        } else {
+            Write-Info "     System and public DNS returned the same answers" -Color Green
+        }
+        if ($dns.SystemAddresses.Count -gt 0) {
+            $systemResolverLabel = if ($dns.SystemResolver) { $dns.SystemResolver } else { 'default' }
+            Write-Info "     System Resolver ($systemResolverLabel) -> $($dns.SystemAddresses -join ', ')" -Color Gray
+        }
+        if ($dns.PublicAddresses.Count -gt 0) {
+            Write-Info "     Public Resolver ($($dns.PublicResolver)) -> $($dns.PublicAddresses -join ', ')" -Color Gray
+        }
+        foreach ($note in $dns.Notes) {
+            Write-Info "     Note: $note" -Color Gray
+        }
+    } else {
+        Write-Info "     DNS steering test unavailable" -Color Gray
+    }
+
+    # --- Proxy Headers ---
+    Write-Info "`n  3. Proxy Header Analysis:" -Color Cyan
+    if ($MiddlemanInfo.ProxyHeaders.ProxyDetected) {
+        Write-Info "     Proxy-indicating headers FOUND in response" -Color Yellow
+        foreach ($ph in $MiddlemanInfo.ProxyHeaders.DetectedHeaders) {
+            Write-Info "     $($ph.Header): $($ph.Value)" -Color Yellow
+        }
+    } else {
+        Write-Info "     No proxy-indicating headers detected" -Color Green
+    }
+    foreach ($note in $MiddlemanInfo.ProxyHeaders.Notes) {
+        Write-Info "     Note: $note" -Color Gray
+    }
+
+    # --- System Proxy Config ---
+    Write-Info "`n  4. System Proxy Configuration:" -Color Cyan
+    if ($MiddlemanInfo.ProxyConfig.ProxyConfigured) {
+        Write-Info "     System-level proxy IS configured" -Color Yellow
+        if ($MiddlemanInfo.ProxyConfig.WinINetProxy) {
+            Write-Info "     WinINet Proxy: $($MiddlemanInfo.ProxyConfig.WinINetProxy)" -Color Yellow
+        }
+        if ($MiddlemanInfo.ProxyConfig.PACUrl) {
+            Write-Info "     PAC URL: $($MiddlemanInfo.ProxyConfig.PACUrl)" -Color Yellow
+        }
+        if ($MiddlemanInfo.ProxyConfig.WPADEnabled) {
+            Write-Info "     WPAD: Active (auto-proxy discovery enabled)" -Color Yellow
+        }
+        if ($MiddlemanInfo.ProxyConfig.EnvProxies.Count -gt 0) {
+            foreach ($ep in $MiddlemanInfo.ProxyConfig.EnvProxies) {
+                Write-Info "     ENV: $($ep.Variable) = $($ep.Value)" -Color Yellow
+            }
+        }
+    } else {
+        Write-Info "     No system-level proxy configuration detected" -Color Green
+    }
+    foreach ($note in $MiddlemanInfo.ProxyConfig.Notes) {
+        Write-Info "     Note: $note" -Color Gray
+    }
+
+    # --- Security Agent Detection ---
+    Write-Info "`n  5. Security Agent Detection (SASE/SSE):" -Color Cyan
+    if ($MiddlemanInfo.SecurityAgents.AgentDetected) {
+        foreach ($agentInfo in $MiddlemanInfo.SecurityAgents.AgentsFound) {
+            Write-Info "     DETECTED: $($agentInfo.Name)" -Color Red
+            foreach ($ev in $agentInfo.Evidence) {
+                Write-Info "       - $ev" -Color Yellow
+            }
+        }
+        Write-Info "     [!] A security agent on this machine can intercept, re-encrypt, or redirect" -Color Yellow
+        Write-Info "         traffic for ANY domain, even if TLS interception was not detected above." -Color Yellow
+        Write-Info "         The agent may have a domain bypass list that exempts this specific site." -Color Yellow
+    } else {
+        Write-Info "     No SASE/SSE security agents detected on this machine" -Color Green
+    }
+
+    # --- Origin Cert / SASE Path Detection ---
+    Write-Info "`n  6. Origin SASE/Middlebox Probe (CDN-to-Origin Path):" -Color Cyan
+    if ($MiddlemanInfo.OriginCertPath) {
+        $ocp = $MiddlemanInfo.OriginCertPath
+        if ($ocp.OriginCandidates.Count -gt 0) {
+            Write-Info "     Origin candidates discovered: $($ocp.OriginCandidates -join ', ')" -Color Gray
+        }
+        if ($ocp.SASEDetected) {
+            foreach ($finding in $ocp.SASEFindings) {
+                Write-Info "     SASE/SSE DETECTED on origin path:" -Color Red
+                Write-Info "       Provider: $($finding.Provider)" -Color Red
+                Write-Info "       Origin:   $($finding.Origin)" -Color Yellow
+                Write-Info "       Evidence: $($finding.Evidence)" -Color Yellow
+            }
+            Write-Info "     [!] A security service is intercepting traffic between the CDN and origin." -Color Yellow
+            Write-Info "         This can cause TLS errors, latency, or content modification even though" -Color Yellow
+            Write-Info "         the client-to-CDN connection appears clean." -Color Yellow
+        } else {
+            Write-Info "     No SASE/SSE middlebox indicators found on discovered origin candidates" -Color Green
+        }
+        foreach ($note in $ocp.Notes) {
+            Write-Info "     Note: $note" -Color Gray
+        }
+    } else {
+        Write-Info "     Origin probe not available" -Color Gray
+    }
+
+    # --- Traceroute ---
+    Write-Info "`n  7. Traceroute / Path Analysis:" -Color Cyan
+
+    # 4a. TCP connectivity test (always most reliable for CDN endpoints)
+    if ($MiddlemanInfo.Traceroute.TCPTest) {
+        $tcp = $MiddlemanInfo.Traceroute.TCPTest
+        $tcpColor = if ($tcp.TcpTestSucceeded) { 'Green' } else { 'Red' }
+        $ifColor = if ($tcp.IsVPN) { 'Yellow' } else { 'Gray' }
+        Write-Info "     TCP Connectivity Test (port $($tcp.RemotePort)):" -Color Cyan
+        Write-Info "       Result:    $(if ($tcp.TcpTestSucceeded) { 'SUCCEEDED' } else { 'FAILED' })" -Color $tcpColor
+        Write-Info "       Remote:    $($tcp.RemoteAddress)" -Color Gray
+        Write-Info "       Source:    $($tcp.SourceAddress)" -Color Gray
+        Write-Info "       Interface: $($tcp.InterfaceAlias)$(if ($tcp.IsVPN) { '  ** VPN DETECTED **' } else { '' })" -Color $ifColor
+        Write-Info "       Next Hop:  $($tcp.NextHop)" -Color Gray
+        if ($tcp.ResolvedAddresses.Count -gt 1) {
+            Write-Info "       All IPs:   $($tcp.ResolvedAddresses -join ', ')" -Color Gray
+        }
+        if ($tcp.IsVPN) {
+            Write-Info "       [!] Traffic is flowing through a VPN tunnel. The VPN gateway is an on-path" -Color Yellow
+            Write-Info "           middlebox that may inspect, re-encrypt, or modify traffic." -Color Yellow
+        }
+    }
+
+    # 4b. ICMP traceroute results (may be incomplete/aborted)
+    if ($MiddlemanInfo.Traceroute.ICMPAborted) {
+        Write-Info "`n     ICMP Traceroute: Aborted (ICMP blocked -- common for CDN/AFD endpoints)" -Color Yellow
+        if ($MiddlemanInfo.Traceroute.Hops.Count -gt 0) {
+            Write-Info "     Partial hops before abort ($($MiddlemanInfo.Traceroute.Hops.Count) captured):" -Color Gray
+            foreach ($hop in $MiddlemanInfo.Traceroute.Hops) {
+                $latencyStr = if ($hop.AvgLatency -ge 0) { "$($hop.AvgLatency) ms" } else { "* * *" }
+                $hopColor = if ($hop.Suspicious) { 'Yellow' } elseif ($hop.Timeouts -eq 3) { 'Gray' } else { 'White' }
+                Write-Info ("       {0,-4} {1,-18} {2}" -f $hop.Hop, $hop.IP, $latencyStr) -Color $hopColor
+            }
+        }
+    } else {
+        Write-Info "`n     ICMP Traceroute:" -Color Cyan
+        Write-Info "     Total hops: $($MiddlemanInfo.Traceroute.TotalHops), Timeout hops: $($MiddlemanInfo.Traceroute.TimeoutHops)" -Color Gray
+        if ($MiddlemanInfo.Traceroute.Hops.Count -gt 0) {
+            Write-Info "     Hop  IP                 Hostname                         Latency    Status" -Color Gray
+            Write-Info "     ---  --                 --------                         -------    ------" -Color Gray
+            foreach ($hop in $MiddlemanInfo.Traceroute.Hops) {
+                $latencyStr = if ($hop.AvgLatency -ge 0) { "$($hop.AvgLatency) ms" } else { "* * *" }
+                $statusStr = if ($hop.Suspicious) { "SUSPICIOUS" } elseif ($hop.Timeouts -eq 3) { "timeout" } else { "ok" }
+                $hopColor = if ($hop.Suspicious) { 'Yellow' } elseif ($hop.Timeouts -eq 3) { 'Gray' } else { 'White' }
+                $ipPad = $hop.IP.PadRight(18)
+                $namePad = if ($hop.HostName) { $hop.HostName.PadRight(32) } else { ''.PadRight(32) }
+                Write-Info ("     {0,-4} {1} {2} {3,-10} {4}" -f $hop.Hop, $ipPad, $namePad, $latencyStr, $statusStr) -Color $hopColor
+            }
+        }
+    }
+    if ($MiddlemanInfo.Traceroute.SuspiciousHops.Count -gt 0) {
+        Write-Info "`n     Suspicious hops:" -Color Yellow
+        foreach ($sh in $MiddlemanInfo.Traceroute.SuspiciousHops) {
+            Write-Info "       Hop $($sh.Hop) ($($sh.IP)) -- $($sh.Reason)" -Color Yellow
+        }
+    }
+    foreach ($note in $MiddlemanInfo.Traceroute.Notes) {
+        Write-Info "     Note: $note" -Color Gray
+    }
+
+    # --- MTU ---
+    Write-Info "`n  8. MTU Path Discovery:" -Color Cyan
+    if ($MiddlemanInfo.MTUTest.PossibleIssue) {
+        Write-Info "     REDUCED MTU detected: ~$($MiddlemanInfo.MTUTest.MaxMTU) bytes (standard: 1500)" -Color Yellow
+        Write-Info "     This typically indicates VPN tunneling, NVA encapsulation, or MPLS overhead" -Color Yellow
+    } elseif ($MiddlemanInfo.MTUTest.StandardMTU) {
+        Write-Info "     Standard MTU (1500 bytes) -- no encapsulation overhead detected" -Color Green
+    } else {
+        foreach ($note in $MiddlemanInfo.MTUTest.Notes) {
+            Write-Info "     $note" -Color Gray
+        }
+    }
+
+    # --- Connection Reuse ---
+    Write-Info "`n  9. Connection Reuse (Keep-Alive) Test:" -Color Cyan
+    # Guard against accidental array wrapping from pipeline output
+    $reuseObj = $MiddlemanInfo.ConnectionReuse
+    if ($reuseObj -is [array]) { $reuseObj = $reuseObj[-1] }
+    if ($reuseObj.Results.Count -gt 0) {
+        foreach ($cr in $reuseObj.Results) {
+            $crColor = if ($cr.Success) { 'Green' } else { 'Red' }
+            $crStatus = if ($cr.Success) { "OK ($($cr.StatusCode))" } else { "FAIL ($($cr.StatusCode))" }
+            $errInfo = if ($cr.Error) { "  [$($cr.Error)]" } else { '' }
+            Write-Info "     Request $($cr.Request): $crStatus  ($($cr.LatencyMs) ms)$errInfo" -Color $crColor
+        }
+    }
+    if ($reuseObj.ReuseIssue) {
+        Write-Info "     CONNECTION REUSE ISSUE DETECTED" -Color Yellow
+        foreach ($note in $reuseObj.Notes) {
+            Write-Info "     $note" -Color Yellow
+        }
+    } elseif (-not $reuseObj.AllSucceeded -and $reuseObj.Results.Count -gt 0) {
+        Write-Info "     Some or all requests failed -- see notes above" -Color Yellow
+        foreach ($note in $reuseObj.Notes) {
+            Write-Info "     $note" -Color Yellow
+        }
+    } else {
+        Write-Info "     Connection reuse appears healthy" -Color Green
+    }
 }
 
 function Analyze-SingleUrl {
@@ -1594,6 +3435,14 @@ function Analyze-SingleUrl {
         $afdPop = Get-AzureFrontDoorPOP -AzureRef $response.Headers['x-azure-ref']
     }
     
+    # Middleman / Middlebox Detection (main URL only)
+    $middlemanInfo = $null
+    if ($IsMainUrl) {
+        Write-Verbose "Running middleman detection checks..."
+        $middlemanInfo = Test-MiddlemanPresence -Url $Url -Response $response -TLSInfo $tlsInfo -CNAMEChain $domainInfo.CNAMEChain
+        Write-Verbose "Middleman detection completed"
+    }
+    
     return [PSCustomObject]@{
         Url = $Url
         Domain = $domainInfo.Domain
@@ -1617,6 +3466,7 @@ function Analyze-SingleUrl {
         CacheStatus = $cacheStatus
         CompressionInfo = $compressionInfo
         AzureFrontDoorPOP = $afdPop
+        MiddlemanInfo = $middlemanInfo
         RedirectChain = $redirectChain
     }
 }
@@ -1849,7 +3699,7 @@ function Show-UrlAnalysis {
             
             Write-Info "Possible causes:" -Color Yellow
             foreach ($cause in $possibleCauses) {
-                Write-Info "  • $cause"
+                Write-Info "  * $cause"
             }
         }
         
@@ -1919,17 +3769,17 @@ function Show-UrlAnalysis {
         
         if ($wafChallengeDetected) {
             Write-Info "`n--- WAF Challenge Detected ---" -Color Yellow
-            Write-Info "⚠ WARNING: This response appears to be a WAF challenge page, not the actual site content" -Color Yellow
+            Write-Info "[!] WARNING: This response appears to be a WAF challenge page, not the actual site content" -Color Yellow
             Write-Info "WAF Provider: $wafProvider" -Color Yellow
             if ($wafIndicators.Count -gt 0) {
                 Write-Info "Indicators:" -Color Gray
                 foreach ($indicator in $wafIndicators) {
-                    Write-Info "  • $indicator" -Color Gray
+                    Write-Info "  * $indicator" -Color Gray
                 }
             }
             Write-Info "`nNote: Security headers and content analysis below may be incomplete." -Color Yellow
             Write-Info "The actual site likely has additional security headers after passing the challenge." -Color Gray
-            Write-Info "To see real headers, use a browser with DevTools (F12 → Network tab)." -Color Gray
+            Write-Info "To see real headers, use a browser with DevTools (F12 -> Network tab)." -Color Gray
         }
         
         # Security Headers Audit
@@ -1961,7 +3811,7 @@ function Show-UrlAnalysis {
         if ($presentHeaders.Count -gt 0) {
             Write-Info "Present Security Headers:" -Color Green
             foreach ($h in $presentHeaders) {
-                Write-Info "  ✓ $($h.Name)" -Color Green
+                Write-Info "  [+] $($h.Name)" -Color Green
             }
         }
         
@@ -1973,7 +3823,7 @@ function Show-UrlAnalysis {
                     'Medium' { 'Yellow' }
                     default { 'Gray' }
                 }
-                Write-Info "  ✗ $($h.Name) [$($h.Severity)] - $($h.Description)" -Color $color
+                Write-Info "  [-] $($h.Name) [$($h.Severity)] - $($h.Description)" -Color $color
             }
         } else {
             Write-Info "All recommended security headers are present!" -Color Green
@@ -1992,13 +3842,18 @@ function Show-UrlAnalysis {
         }
         Write-Info "Final URL: $($Analysis.RedirectChain[-1].Url)"
     }
+    
+    # Middleman / Middlebox Detection Results
+    if ($Analysis.MiddlemanInfo) {
+        Show-MiddlemanResults -MiddlemanInfo $Analysis.MiddlemanInfo
+    }
 }
 
 # Main execution
 try {
     # Validate URL parameter
     if (-not $Url) {
-        Write-Error "URL parameter is required. Usage: .\CheckCDNInfov2.ps1 -Url 'https://example.com'"
+        Write-Err "URL parameter is required. Usage: .\CheckCDNInfov2.ps1 -Url 'https://example.com'"
         exit 1
     }
     
@@ -2154,9 +4009,37 @@ try {
         Write-Info "  Traditional Web Hosting / Custom Infrastructure" -Color Yellow
     }
     
+    # Final Middleman / Middlebox Summary
+    if ($mainAnalysis.MiddlemanInfo) {
+        Write-Info "`n=== FINAL MIDDLEMAN / MIDDLEBOX SUMMARY ===" -Color Magenta
+        if ($mainAnalysis.MiddlemanInfo.MiddlemanDetected) {
+            $mmColor = switch ($mainAnalysis.MiddlemanInfo.Confidence) {
+                'HIGH'   { 'Red' }
+                'MEDIUM' { 'Yellow' }
+                default  { 'Gray' }
+            }
+            Write-Info "  MIDDLEBOX PRESENCE: DETECTED (Confidence: $($mainAnalysis.MiddlemanInfo.Confidence))" -Color $mmColor
+            Write-Info "  Signals found: $($mainAnalysis.MiddlemanInfo.Signals.Count)" -Color $mmColor
+            foreach ($sig in $mainAnalysis.MiddlemanInfo.Signals) {
+                $sigColor = switch ($sig.Signal) {
+                    'HIGH'   { 'Red' }
+                    'MEDIUM' { 'Yellow' }
+                    default  { 'Gray' }
+                }
+                Write-Info "    [$($sig.Signal)] $($sig.Check): $($sig.Detail)" -Color $sigColor
+            }
+            Write-Info "" -Color White
+            Write-Info "  RECOMMENDATION: Compare results from corporate network vs. LTE/hotspot." -Color Cyan
+            Write-Info "  If issues only occur on corporate network, an on-path enterprise device" -Color Cyan
+            Write-Info "  (NVA, firewall, TLS inspection proxy) is almost certainly involved." -Color Cyan
+        } else {
+            Write-Info "  No middlebox indicators detected on this network path" -Color Green
+        }
+    }
+    
     Write-Info "`nAnalysis completed successfully!" -Color Green
 }
 catch {
-    Write-Error "Fatal error during analysis" $_.Exception.Message
+    Write-Err "Fatal error during analysis" $_.Exception.Message
     exit 1
 }
